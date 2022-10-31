@@ -13,14 +13,14 @@ import axios from 'axios';
 import * as AssetABI from '../abi/Asset.abi.json';
 import { ContractContext as AssetContext } from '../abi/Asset';
 
-const ETHEREUM_CHAIN_ID = '1';
-const POLYGON_CHAIN_ID = '137';
-const ARBITRUM_CHAIN_ID = '42161';
-const AVALANCHE_CHAIN_ID = '43114';
-const BSC_CHAIN_ID = '56';
-const OPTIMISM_CHAIN_ID = '10';
-const FANTOM_CHAIN_ID = '250';
-type ChainID =
+export const ETHEREUM_CHAIN_ID = '1';
+export const POLYGON_CHAIN_ID = '137';
+export const ARBITRUM_CHAIN_ID = '42161';
+export const AVALANCHE_CHAIN_ID = '43114';
+export const BSC_CHAIN_ID = '56';
+export const OPTIMISM_CHAIN_ID = '10';
+export const FANTOM_CHAIN_ID = '250';
+export type ChainID =
   | typeof ETHEREUM_CHAIN_ID
   | typeof POLYGON_CHAIN_ID
   | typeof ARBITRUM_CHAIN_ID
@@ -28,6 +28,14 @@ type ChainID =
   | typeof BSC_CHAIN_ID
   | typeof OPTIMISM_CHAIN_ID
   | typeof FANTOM_CHAIN_ID;
+export const CHAIN_IDS = [
+  POLYGON_CHAIN_ID,
+  ARBITRUM_CHAIN_ID,
+  AVALANCHE_CHAIN_ID,
+  BSC_CHAIN_ID,
+  OPTIMISM_CHAIN_ID,
+  FANTOM_CHAIN_ID,
+];
 
 interface SwapEntry {
   nonce: string;

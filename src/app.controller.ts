@@ -3,13 +3,10 @@ import { AppService, ChainID } from './app.service';
 import { IsEthereumAddress, IsIn, IsNumberString } from 'class-validator';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { networks } from './app.worker';
-
-const POLYGON_CHAIN_ID = '137';
-const ARBITRUM_CHAIN_ID = '42161';
+import { CHAIN_IDS, networks } from './app.worker';
 
 class GetSwapParamsQueryDto {
-  @IsIn([POLYGON_CHAIN_ID, ARBITRUM_CHAIN_ID])
+  @IsIn(CHAIN_IDS)
   fromChain: ChainID;
 
   @IsEthereumAddress()
@@ -18,7 +15,7 @@ class GetSwapParamsQueryDto {
   @IsNumberString()
   fromAmount: number;
 
-  @IsIn([POLYGON_CHAIN_ID, ARBITRUM_CHAIN_ID])
+  @IsIn(CHAIN_IDS)
   toChain: ChainID;
 
   @IsEthereumAddress()
