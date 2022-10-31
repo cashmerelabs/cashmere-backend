@@ -22,6 +22,7 @@ import { ConsoleService } from 'nestjs-console';
 import axios from 'axios';
 import { Log } from 'ethereum-abi-types-generator';
 import { l0ProcessHistory, l0Worker } from './app.worker';
+import { ConfigService } from '@nestjs/config';
 
 const POLYGON_CHAIN_ID = '137';
 const ARBITRUM_CHAIN_ID = '42161';
@@ -106,7 +107,11 @@ type PendingSwap = {
 
 @Injectable()
 export class AppService {
-  constructor(private readonly consoleService: ConsoleService) {
+  constructor(
+    private readonly consoleService: ConsoleService,
+    private configService: ConfigService,
+  ) {
+    const pk = configService.get<string>('WALLET_PK');
     const cli = consoleService.getCli();
     // consoleService.createCommand(
     //   {
@@ -119,7 +124,7 @@ export class AppService {
       {
         command: 'workerL0 <networkId>',
       },
-      (networkId: string) => l0Worker(networkId as ChainID),
+      (networkId: string) => l0Worker(networkId as ChainID, pk),
       cli,
     );
     consoleService.createCommand(
@@ -127,7 +132,7 @@ export class AppService {
         command: 'parseLogsL0 <networkId> <fromBlock>',
       },
       async (networkId: string, fromBlock: string) =>
-        await l0ProcessHistory(networkId as ChainID, parseInt(fromBlock)),
+        await l0ProcessHistory(networkId as ChainID, parseInt(fromBlock), pk),
       cli,
     );
   }

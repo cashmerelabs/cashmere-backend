@@ -161,7 +161,7 @@ export const networks = {
 const redis = new Redis();
 const redisKey = (name: string) => `csm-backend-v1:${name}`;
 
-const l0LogHandler = (network: Network) => {
+const l0LogHandler = (network: Network, pk: string) => {
   const ethers = network.ethers;
   const chainId = network.chainId;
 
@@ -250,10 +250,7 @@ const l0LogHandler = (network: Network) => {
           },
         },
       );
-      const wallet = new Wallet(
-        'f508009a86f269a13b0ab32400500db64c61950ba59bd436eb0d8637a4aaf949',
-        network.ethers,
-      );
+      const wallet = new Wallet(pk, network.ethers);
       const receipt2 = await network.l0AggregatorRouter
         .connect(wallet)
         .continueSwap(
@@ -275,7 +272,7 @@ const l0LogHandler = (network: Network) => {
   };
 };
 
-export const l0Worker = async (chainId: ChainID) => {
+export const l0Worker = async (chainId: ChainID, pk: string) => {
   const network = networks[chainId];
 
   if (!network) {
@@ -311,7 +308,7 @@ export const l0Worker = async (chainId: ChainID) => {
           const lp = network.l0CrossChainPool.interface.parseLog(l);
           const { sender, srcAsset, dstAsset, chainId, fromAmount, toAmount } =
             lp.args;
-          return l0LogHandler(network)(
+          return l0LogHandler(network, pk)(
             sender,
             srcAsset,
             dstAsset,
@@ -339,7 +336,11 @@ export const l0Worker = async (chainId: ChainID) => {
   }
 };
 
-export const l0ProcessHistory = async (chainId: ChainID, fromBlock: number) => {
+export const l0ProcessHistory = async (
+  chainId: ChainID,
+  fromBlock: number,
+  pk: string,
+) => {
   const network = networks[chainId];
 
   if (!network) {
@@ -354,7 +355,7 @@ export const l0ProcessHistory = async (chainId: ChainID, fromBlock: number) => {
       const lp = network.l0CrossChainPool.interface.parseLog(l);
       const { sender, srcAsset, dstAsset, chainId, fromAmount, toAmount } =
         lp.args;
-      return l0LogHandler(network)(
+      return l0LogHandler(network, pk)(
         sender,
         srcAsset,
         dstAsset,
