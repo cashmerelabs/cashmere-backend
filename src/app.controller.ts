@@ -164,26 +164,26 @@ export class AppController {
       },
     );
     console.log(data.tx);
-    const swapData = swapRouter.interface.encodeFunctionData(
-      swapRouter.interface.functions[
-        'startSwap((address,uint256,address,address,bytes,address,uint256,address,uint16,uint256,bytes))'
-      ],
-      [
-        [
-          fromToken,
-          fromAmount,
-          lwsTokenAddress,
-          data.tx.to,
-          data.tx.data,
-          hgsTokenAddressDest,
-          hgsAssetId,
-          toToken,
-          toNetwork.l0ChainId,
-          0,
-          signature,
-        ],
-      ],
-    );
+    // const swapData = swapRouter.interface.encodeFunctionData(
+    //   swapRouter.interface.functions[
+    //     'startSwap((address,uint256,address,address,bytes,address,uint256,address,uint16,uint256,bytes))'
+    //   ],
+    //   [
+    //     [
+    //       fromToken,
+    //       fromAmount,
+    //       lwsTokenAddress,
+    //       data.tx.to,
+    //       data.tx.data,
+    //       hgsTokenAddressDest,
+    //       hgsAssetId,
+    //       toToken,
+    //       toNetwork.l0ChainId,
+    //       0,
+    //       signature,
+    //     ],
+    //   ],
+    // );
     const { potentialOutcome, haircut } = await poolCC.quotePotentialSwap(
       lwsTokenAddress,
       hgsTokenAddressDest,
@@ -216,7 +216,19 @@ export class AppController {
       estimatePayload,
     );
     return {
-      data: swapData,
+      args: {
+        srcToken: fromToken,
+        lwsToken: lwsTokenAddress,
+        hgsToken: hgsTokenAddressDest,
+        dstToken: toToken,
+        hgsAssetId: hgsAssetId,
+        oneInchData: data.tx.data,
+        oneInchAddress: data.tx.to,
+        dstChainId: toNetwork.l0ChainId,
+        srcAmount: fromAmount,
+        hgsEstimate: potentialOutcome.toString(),
+      },
+      // data: swapData,
       to: swapRouter.address,
       value,
     };
