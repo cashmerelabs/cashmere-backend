@@ -100,22 +100,39 @@ export interface RoleRevokedEventEmittedResponse {
   account: string;
   sender: string;
 }
+export interface ContinueSwapRequest {
+  lwsToken: string;
+  hgsToken: string;
+  hgsAmount: BigNumberish;
+  dstToken: string;
+  router1Inch: string;
+  data: Arrayish;
+  receiver: string;
+  minHgsAmount: BigNumberish;
+  signature: Arrayish;
+}
 export interface PendingSwapsResponse {
   id: BigNumber;
   0: BigNumber;
+  lwsToken: string;
+  1: string;
   hgsAmount: BigNumber;
-  1: BigNumber;
+  2: BigNumber;
   hgsToken: string;
-  2: string;
-  dstToken: string;
   3: string;
+  dstToken: string;
+  4: string;
   dstChainId: number;
-  4: number;
+  5: number;
   receiver: string;
-  5: string;
+  6: string;
   processed: boolean;
-  6: boolean;
-  length: 7;
+  7: boolean;
+  minHgsAmount: BigNumber;
+  8: BigNumber;
+  signature: string;
+  9: string;
+  length: 10;
 }
 export interface StartSwapRequest {
   srcToken: string;
@@ -127,6 +144,8 @@ export interface StartSwapRequest {
   hgsAssetId: BigNumberish;
   dstToken: string;
   dstChain: BigNumberish;
+  minHgsAmount: BigNumberish;
+  signature: Arrayish;
 }
 export interface CashmereRouter2L0 {
   /**
@@ -162,20 +181,10 @@ export interface CashmereRouter2L0 {
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
-   * @param hgsToken Type: address, Indexed: false
-   * @param hgsAmount Type: uint256, Indexed: false
-   * @param dstToken Type: address, Indexed: false
-   * @param router1Inch Type: address, Indexed: false
-   * @param data Type: bytes, Indexed: false
-   * @param receiver Type: address, Indexed: false
+   * @param params Type: tuple, Indexed: false
    */
   continueSwap(
-    hgsToken: string,
-    hgsAmount: BigNumberish,
-    dstToken: string,
-    router1Inch: string,
-    data: Arrayish,
-    receiver: string,
+    params: ContinueSwapRequest,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**

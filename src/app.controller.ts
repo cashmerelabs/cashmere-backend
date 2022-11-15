@@ -20,6 +20,8 @@ class GetSwapParamsQueryDto {
 
   @IsEthereumAddress()
   toToken: string;
+
+  signature: string;
 }
 
 @Controller()
@@ -121,6 +123,7 @@ export class AppController {
       fromAmount,
       toChain,
       toToken,
+      signature,
     }: GetSwapParamsQueryDto,
   ): Promise<object> {
     const fromNetwork = networks[fromChain];
@@ -163,7 +166,7 @@ export class AppController {
     console.log(data.tx);
     const swapData = swapRouter.interface.encodeFunctionData(
       swapRouter.interface.functions[
-        'startSwap((address,uint256,address,address,bytes,address,uint256,address,uint16))'
+        'startSwap((address,uint256,address,address,bytes,address,uint256,address,uint16,uint256,bytes))'
       ],
       [
         [
@@ -176,6 +179,8 @@ export class AppController {
           hgsAssetId,
           toToken,
           toNetwork.l0ChainId,
+          0,
+          signature,
         ],
       ],
     );

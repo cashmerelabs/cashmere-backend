@@ -40,12 +40,15 @@ export const CHAIN_IDS = [
 interface SwapEntry {
   nonce: string;
   txid: string;
+  lwsToken: string;
   hgsAmount: string;
   hgsToken: string;
   dstToken: string;
   dstChainId: string;
   receiver: string;
   processed: boolean;
+  minHgsAmount: string;
+  signature: string;
 }
 
 class Network {
@@ -206,12 +209,15 @@ const l0LogHandler = (network: Network, pk: string) => {
       const entry: SwapEntry = {
         nonce: eventData.id.toString(),
         txid: log.transactionHash,
+        lwsToken: eventData.lwsToken,
         hgsAmount: eventData.hgsAmount.toString(),
         hgsToken: eventData.hgsToken,
         dstToken: eventData.dstToken,
         dstChainId: eventData.dstChainId.toString(),
         receiver: eventData.receiver,
         processed: false,
+        minHgsAmount: eventData.minHgsAmount.toString(),
+        signature: eventData.signature,
       };
       await redis.set(
         redisKey(`out-${network.l0ChainId}-${nonce}`),
@@ -262,12 +268,17 @@ const l0LogHandler = (network: Network, pk: string) => {
       const receipt2 = await network.l0AggregatorRouter
         .connect(wallet)
         .continueSwap(
-          swapData.hgsToken,
-          swapData.hgsAmount,
-          swapData.dstToken,
-          data.tx.to,
-          data.tx.data,
-          swapData.receiver,
+          {
+            lwsToken: swapData.lwsToken,
+            hgsToken: swapData.hgsToken,
+            hgsAmount: swapData.hgsAmount,
+            dstToken: swapData.dstToken,
+            router1Inch: data.tx.to,
+            data: data.tx.data,
+            receiver: swapData.receiver,
+            minHgsAmount: swapData.minHgsAmount,
+            signature: swapData.signature,
+          },
           { gasPrice: await network.ethers.getGasPrice() },
         );
       console.log(`swap to ${nonce} executed`, receipt2.hash);
