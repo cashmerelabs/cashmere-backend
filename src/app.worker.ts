@@ -29,6 +29,7 @@ export type ChainID =
   | typeof OPTIMISM_CHAIN_ID
   | typeof FANTOM_CHAIN_ID;
 export const CHAIN_IDS = [
+  ETHEREUM_CHAIN_ID,
   POLYGON_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
   AVALANCHE_CHAIN_ID,
