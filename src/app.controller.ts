@@ -123,6 +123,13 @@ export class AppController {
       toToken,
     }: GetSwapParamsQueryDto,
   ): Promise<object> {
+    console.log({
+      fromChain,
+      fromToken,
+      fromAmount,
+      toChain,
+      toToken,
+    });
     const fromNetwork = networks[fromChain];
     const toNetwork = networks[toChain];
     const pool = fromNetwork.intraChainPool;
