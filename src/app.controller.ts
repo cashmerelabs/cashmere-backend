@@ -232,6 +232,7 @@ export class AppController {
         value,
       };
     } catch (e) {
+      console.error(e);
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
