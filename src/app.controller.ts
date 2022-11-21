@@ -1,4 +1,10 @@
-import { Controller, Get, HttpException, HttpStatus, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { AppService, ChainID } from './app.service';
 import { IsEthereumAddress, IsIn, IsNumberString } from 'class-validator';
 import axios from 'axios';
@@ -124,13 +130,15 @@ export class AppController {
     }: GetSwapParamsQueryDto,
   ): Promise<object> {
     try {
-      console.log({
-        fromChain,
-        fromToken,
-        fromAmount,
-        toChain,
-        toToken,
-      });
+      console.error(
+        JSON.stringify({
+          fromChain,
+          fromToken,
+          fromAmount,
+          toChain,
+          toToken,
+        }),
+      );
       const fromNetwork = networks[fromChain];
       const toNetwork = networks[toChain];
       const pool = fromNetwork.intraChainPool;
