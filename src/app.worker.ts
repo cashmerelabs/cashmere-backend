@@ -101,6 +101,7 @@ class Network {
   }
 }
 
+// 0x59B0cC1775cA85084C2D92A0105e6e572381329c
 export const networks = {
   [ETHEREUM_CHAIN_ID]: new Network(
     ETHEREUM_CHAIN_ID,
@@ -159,9 +160,9 @@ export const networks = {
   [FANTOM_CHAIN_ID]: new Network(
     FANTOM_CHAIN_ID,
     'https://rpc.ankr.com/fantom/',
-    '0x58DDb2cec22ef964ee3CB1C27C6D9Db982EE0159',
-    '0x4524051687b6ff963Bd4316a6B7215F39f029196',
-    '0x3Cd49a6046e675A6d4274CC773370C00a30bbf88',
+    '0x7Fc5e13Ca7a95bCa4a903C46Dc95160ae26feaa1',
+    '0x8EdB69919835e98b5a4f751FAdB78d66C880475C',
+    '0x128a85A855F40551A8FD1af9751959db212C84B0',
     '0xF8e8fcC6eCC323fae58E18CFf9065dac65AAeC93',
     '112',
   ),
