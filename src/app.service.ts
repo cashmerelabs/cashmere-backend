@@ -21,7 +21,7 @@ import * as CSMRouterL0ABI from '../abi/CSMCrossChainRouterL0.abi.json';
 import { ConsoleService } from 'nestjs-console';
 import axios from 'axios';
 import { Log } from 'ethereum-abi-types-generator';
-import { l0ProcessHistory, l0Worker } from './app.worker';
+import { l0ProcessHistory, l0UpdateLastBlock, l0Worker } from './app.worker';
 import { ConfigService } from '@nestjs/config';
 
 const POLYGON_CHAIN_ID = '137';
@@ -133,6 +133,18 @@ export class AppService {
       },
       async (networkId: string, fromBlock: string) =>
         await l0ProcessHistory(networkId as ChainID, parseInt(fromBlock), pk),
+      cli,
+    );
+    consoleService.createCommand(
+      {
+        command: 'updateLastBlock <networkId> <lastBlock>',
+      },
+      async (networkId: string, lastBlock: string) =>
+        await l0UpdateLastBlock(
+          networkId as ChainID,
+          parseInt(lastBlock),
+          true,
+        ),
       cli,
     );
   }

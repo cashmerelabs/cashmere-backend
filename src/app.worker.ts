@@ -357,6 +357,15 @@ export const l0Worker = async (chainId: ChainID, pk: string) => {
   }
 };
 
+export const l0UpdateLastBlock = async (
+  chainId: ChainID,
+  blockNumber: number,
+  log = false,
+) => {
+  await redis.set(redisKey(`lastBlock-${chainId}`), blockNumber.toString());
+  log && console.log('updated');
+};
+
 export const l0ProcessHistory = async (
   chainId: ChainID,
   fromBlock: number,
