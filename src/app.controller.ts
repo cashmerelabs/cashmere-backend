@@ -145,8 +145,16 @@ export class AppController {
       const poolCC = fromNetwork.l0CrossChainPool;
       const routerCC = fromNetwork.l0CrossChainRouter;
       const swapRouter = fromNetwork.l0AggregatorRouter;
-      const { lowestAsset: lwsAssetAddress, highestAsset: hgsAssetAddress } =
+      let { lowestAsset: lwsAssetAddress, highestAsset: hgsAssetAddress } =
         await pool.getHighestAndLowestCompRatioAssets();
+      if (lwsAssetAddress === hgsAssetAddress) {
+        lwsAssetAddress = (
+          await routerCC.getAssetData(fromNetwork.l0ChainId, 1)
+        ).nativeAssetAddress;
+        hgsAssetAddress = (
+          await routerCC.getAssetData(fromNetwork.l0ChainId, 2)
+        ).nativeAssetAddress;
+      }
       const lwsAsset = fromNetwork.assetContract(lwsAssetAddress);
       const lwsTokenAddress = await lwsAsset.underlyingToken();
       const hgsAsset = fromNetwork.assetContract(hgsAssetAddress);
