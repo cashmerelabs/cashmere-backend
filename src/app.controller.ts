@@ -149,10 +149,16 @@ export class AppController {
         await pool.getHighestAndLowestCompRatioAssets();
       if (lwsAssetAddress === hgsAssetAddress) {
         lwsAssetAddress = (
-          await routerCC.getAssetData(fromNetwork.l0ChainId, 1)
+          await routerCC['getAssetData(uint16,uint256)'](
+            fromNetwork.l0ChainId,
+            1,
+          )
         ).nativeAssetAddress;
         hgsAssetAddress = (
-          await routerCC.getAssetData(fromNetwork.l0ChainId, 2)
+          await routerCC['getAssetData(uint16,uint256)'](
+            fromNetwork.l0ChainId,
+            2,
+          )
         ).nativeAssetAddress;
       }
       const lwsAsset = fromNetwork.assetContract(lwsAssetAddress);
