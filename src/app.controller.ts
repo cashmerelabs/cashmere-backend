@@ -8,7 +8,7 @@ import {
 import { AppService, ChainID } from './app.service';
 import { IsEthereumAddress, IsIn, IsNumberString } from 'class-validator';
 import axios from 'axios';
-import { ethers } from 'ethers';
+import { constants, ethers } from 'ethers';
 import { CHAIN_IDS, networks } from './app.worker';
 
 class GetSwapParamsQueryDto {
@@ -163,20 +163,30 @@ export class AppController {
       );
       const hgsTokenAddressDest = assetData.nativeTokenAddress;
       const hgsAssetAddressDest = assetData.nativeAssetAddress;
-      const { data } = await axios.get(
-        `https://api.1inch.io/v4.0/${fromChain}/swap`,
-        {
-          params: {
-            fromTokenAddress: fromToken,
-            toTokenAddress: lwsTokenAddress,
-            amount: fromAmount,
-            fromAddress: swapRouter.address,
-            slippage: '1',
-            disableEstimate: true,
+      let oneInchData, oneInchRouter, toTokenAmount;
+      if (fromToken.toLowerCase() == lwsTokenAddress.toLowerCase()) {
+        oneInchData = '0x0';
+        oneInchRouter = constants.AddressZero;
+        toTokenAmount = fromAmount;
+      } else {
+        const r = await axios.get(
+          `https://api.1inch.io/v4.0/${fromChain}/swap`,
+          {
+            params: {
+              fromTokenAddress: fromToken,
+              toTokenAddress: lwsTokenAddress,
+              amount: fromAmount,
+              fromAddress: swapRouter.address,
+              slippage: '1',
+              disableEstimate: true,
+            },
           },
-        },
-      );
-      console.log(data.tx);
+        );
+        oneInchData = r.data.tx.data;
+        oneInchRouter = r.data.tx.to;
+        toTokenAmount = r.data.toTokenAmount;
+        console.log(r.data.tx);
+      }
       const swapData = swapRouter.interface.encodeFunctionData(
         swapRouter.interface.functions[
           'startSwap((address,uint256,address,address,bytes,address,uint256,address,uint16))'
@@ -186,8 +196,8 @@ export class AppController {
             fromToken,
             fromAmount,
             lwsTokenAddress,
-            data.tx.to,
-            data.tx.data,
+            oneInchRouter,
+            oneInchData,
             hgsTokenAddressDest,
             hgsAssetId,
             toToken,
@@ -198,7 +208,7 @@ export class AppController {
       const { potentialOutcome, haircut } = await poolCC.quotePotentialSwap(
         lwsTokenAddress,
         hgsTokenAddressDest,
-        data.toTokenAmount,
+        toTokenAmount,
         hgsAssetId,
         toNetwork.l0ChainId,
       );
