@@ -250,7 +250,7 @@ const l0LogHandler = (network: Network, pk: string) => {
       let oneInchRouter, oneInchData;
       if (swapData.hgsToken.toLowerCase() == swapData.dstToken.toLowerCase()) {
         oneInchRouter = constants.AddressZero;
-        oneInchData = '0x0';
+        oneInchData = '0x00';
       } else {
         const r = await axios.get(`https://api.1inch.io/v4.0/${chainId}/swap`, {
           params: {

@@ -165,7 +165,7 @@ export class AppController {
       const hgsAssetAddressDest = assetData.nativeAssetAddress;
       let oneInchData, oneInchRouter, toTokenAmount;
       if (fromToken.toLowerCase() == lwsTokenAddress.toLowerCase()) {
-        oneInchData = '0x0';
+        oneInchData = '0x00';
         oneInchRouter = constants.AddressZero;
         toTokenAmount = fromAmount;
       } else {
