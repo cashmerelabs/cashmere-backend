@@ -119,7 +119,7 @@ export const networks = {
     '0x0EC0492846C2B436Ef6937922621621AE4876FF9',
     '0x9657ff118FBC316B3484b006f4D46F53dADd2402',
     '0x9d3EE96e1Ac53a542cCE8642c69D7e11abbA059a',
-    '0xF8e8fcC6eCC323fae58E18CFf9065dac65AAeC93',
+    '0x12D4a5506309ffB7EB7cA8898008313caB660CAc',
     '109',
   ),
   [ARBITRUM_CHAIN_ID]: new Network(
@@ -128,7 +128,7 @@ export const networks = {
     '0xf85252CB3D4f8cC3E05A8E4042b9EC9D2eC82653',
     '0x2bBfDbb623c173Be20cAb6CF4B855CFA5b0786a6',
     '0x83A64f931187bBF560F27Bf7204862b00D8e2CcB',
-    '0xF8e8fcC6eCC323fae58E18CFf9065dac65AAeC93',
+    '0x12D4a5506309ffB7EB7cA8898008313caB660CAc',
     '110',
   ),
   [AVALANCHE_CHAIN_ID]: new Network(
@@ -168,6 +168,11 @@ export const networks = {
     '112',
   ),
 };
+
+const l0ChainIdMap = {};
+Object.entries(networks).forEach(([chainId, network]) => {
+  l0ChainIdMap[network.l0ChainId] = chainId;
+});
 
 const redis = new Redis();
 const redisKey = (name: string) => `csm-backend-v1:${name}`;
@@ -240,8 +245,8 @@ const l0LogHandler = (network: Network, pk: string) => {
         l0MessageReceivedLog.data,
       );
       const nonce = eventData[4].toString();
-      const srcChainId = eventData[1].toString();
-      const entry = await redis.get(redisKey(`out-${srcChainId}-${nonce}`));
+      const srcL0ChainId = eventData[1].toString();
+      const entry = await redis.get(redisKey(`out-${srcL0ChainId}-${nonce}`));
       if (!entry) {
         console.log(`pdst ${nonce} discarded`);
         return;
@@ -265,26 +270,26 @@ const l0LogHandler = (network: Network, pk: string) => {
         },
       );
       const wallet = new Wallet(pk, network.ethers);
+      const params = {
+        lwsToken: swapData.lwsToken,
+        hgsToken: swapData.hgsToken,
+        hgsAmount: swapData.hgsAmount,
+        dstToken: swapData.dstToken,
+        router1Inch: data.tx.to,
+        data: data.tx.data,
+        receiver: swapData.receiver,
+        minHgsAmount: swapData.minHgsAmount,
+        signature: swapData.signature,
+        srcChainId: l0ChainIdMap[srcL0ChainId],
+      };
+      console.log(params);
       const receipt2 = await network.l0AggregatorRouter
         .connect(wallet)
-        .continueSwap(
-          {
-            lwsToken: swapData.lwsToken,
-            hgsToken: swapData.hgsToken,
-            hgsAmount: swapData.hgsAmount,
-            dstToken: swapData.dstToken,
-            router1Inch: data.tx.to,
-            data: data.tx.data,
-            receiver: swapData.receiver,
-            minHgsAmount: swapData.minHgsAmount,
-            signature: swapData.signature,
-          },
-          { gasPrice: await network.ethers.getGasPrice() },
-        );
+        .continueSwap(params, { gasPrice: await network.ethers.getGasPrice() });
       console.log(`swap to ${nonce} executed`, receipt2.hash);
       swapData.processed = true;
       await redis.set(
-        redisKey(`out-${srcChainId}-${nonce}`),
+        redisKey(`out-${srcL0ChainId}-${nonce}`),
         JSON.stringify(swapData),
       );
     }
@@ -338,10 +343,7 @@ export const l0Worker = async (chainId: ChainID, pk: string) => {
           );
         }),
       );
-      await redis.set(
-        redisKey(`lastBlock-${network.chainId}`),
-        (currentBlock + 1).toString(),
-      );
+      await l0UpdateLastBlock(network.chainId, currentBlock + 1);
     }
   };
 
@@ -353,6 +355,15 @@ export const l0Worker = async (chainId: ChainID, pk: string) => {
       }, 1000);
     });
   }
+};
+
+export const l0UpdateLastBlock = async (
+  chainId: ChainID,
+  blockNumber: number,
+  log = false,
+) => {
+  await redis.set(redisKey(`lastBlock-${chainId}`), blockNumber.toString());
+  log && console.log('updated');
 };
 
 export const l0ProcessHistory = async (

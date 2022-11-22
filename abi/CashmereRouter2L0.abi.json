@@ -179,9 +179,14 @@
             "internalType": "bytes",
             "name": "signature",
             "type": "bytes"
+          },
+          {
+            "internalType": "uint256",
+            "name": "srcChainId",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct CashmereRouter2L0.ContinueSwapParams",
+        "internalType": "struct CashmereRouter2L0Backup.ContinueSwapParams",
         "name": "params",
         "type": "tuple"
       }
@@ -448,7 +453,7 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct CashmereRouter2L0.SwapParams",
+        "internalType": "struct CashmereRouter2L0Backup.SwapParams",
         "name": "params",
         "type": "tuple"
       }

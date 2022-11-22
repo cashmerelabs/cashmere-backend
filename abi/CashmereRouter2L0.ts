@@ -110,6 +110,7 @@ export interface ContinueSwapRequest {
   receiver: string;
   minHgsAmount: BigNumberish;
   signature: Arrayish;
+  srcChainId: BigNumberish;
 }
 export interface PendingSwapsResponse {
   id: BigNumber;
