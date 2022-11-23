@@ -101,7 +101,6 @@ class Network {
   }
 }
 
-// 0x59B0cC1775cA85084C2D92A0105e6e572381329c
 export const networks = {
   [ETHEREUM_CHAIN_ID]: new Network(
     ETHEREUM_CHAIN_ID,
@@ -109,7 +108,7 @@ export const networks = {
     '0x58DDb2cec22ef964ee3CB1C27C6D9Db982EE0159',
     '0x4524051687b6ff963Bd4316a6B7215F39f029196',
     '0x3Cd49a6046e675A6d4274CC773370C00a30bbf88',
-    '0xbAaE4D21E7c949256832e9172eF4E11f1D3F1515',
+    '0x474Fbf2b004AafF2E326AA3Be035332D1c0758a5',
     '101',
   ),
   [POLYGON_CHAIN_ID]: new Network(
@@ -217,12 +216,16 @@ const l0LogHandler = (network: Network, pk: string) => {
         receiver: eventData.receiver,
         processed: false,
       };
-      const key = entryKey(network.l0ChainId, entry.dstChainId, entry.nonce);
-      if (await redis.get(key)) {
-        console.error(`${key} already exists`);
+      const storageKey = entryKey(
+        network.l0ChainId,
+        entry.dstChainId,
+        entry.nonce,
+      );
+      if (await redis.get(storageKey)) {
+        console.error(`${storageKey} already exists`);
       } else {
-        await redis.set(key, JSON.stringify(entry));
-        console.error(`swap from ${nonce}`, key, entry);
+        await redis.set(storageKey, JSON.stringify(entry));
+        console.error(`swap from ${nonce}`, storageKey, entry);
       }
     } else {
       // incoming tx
@@ -241,15 +244,15 @@ const l0LogHandler = (network: Network, pk: string) => {
       );
       const nonce = eventData[4].toString();
       const srcChainId = eventData[1].toString();
-      const key = entryKey(srcChainId, network.l0ChainId, nonce);
-      const entry = await redis.get(key);
+      const storageKey = entryKey(srcChainId, network.l0ChainId, nonce);
+      const entry = await redis.get(storageKey);
       if (!entry) {
-        console.error(`${key} not found, discarded`);
+        console.error(`${storageKey} not found, discarded`);
         return;
       }
       const swapData: SwapEntry = JSON.parse(entry);
       if (swapData.processed) {
-        console.error(`pdst ${nonce} already processed (${key})`);
+        console.error(`pdst ${nonce} already processed (${storageKey})`);
         return;
       }
       let oneInchRouter, oneInchData;
@@ -282,9 +285,9 @@ const l0LogHandler = (network: Network, pk: string) => {
           swapData.receiver,
           { gasPrice: await network.ethers.getGasPrice() },
         );
-      console.error(`swap to ${nonce} executed`, key, receipt2.hash);
+      console.error(`swap to ${nonce} executed`, storageKey, receipt2.hash);
       swapData.processed = true;
-      await redis.set(key, JSON.stringify(swapData));
+      await redis.set(storageKey, JSON.stringify(swapData));
     }
   };
 };
