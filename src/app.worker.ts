@@ -170,6 +170,8 @@ export const networks = {
 
 const redis = new Redis();
 const redisKey = (name: string) => `csm-backend-v1:${name}`;
+const entryKey = (srcChainId: any, dstChainId: any, nonce: any) =>
+  redisKey(`out-${srcChainId}-${dstChainId}-${nonce}`);
 
 const l0LogHandler = (network: Network, pk: string) => {
   const ethers = network.ethers;
@@ -202,7 +204,7 @@ const l0LogHandler = (network: Network, pk: string) => {
       );
       const eventData = await network.l0AggregatorRouter.pendingSwaps(nonce);
       if (eventData.id.eq(0)) {
-        console.log(`psrc ${nonce} discarded`);
+        console.error(`psrc ${nonce} discarded`);
         return;
       }
       const entry: SwapEntry = {
@@ -215,15 +217,13 @@ const l0LogHandler = (network: Network, pk: string) => {
         receiver: eventData.receiver,
         processed: false,
       };
-      await redis.set(
-        redisKey(
-          `out-${
-            network.l0ChainId
-          }-${eventData.dstChainId.toString()}-${nonce}`,
-        ),
-        JSON.stringify(entry),
-      );
-      console.log(`swap from ${nonce}`, entry);
+      const key = entryKey(network.l0ChainId, entry.dstChainId, entry.nonce);
+      if (await redis.get(key)) {
+        console.error(`${key} already exists`);
+      } else {
+        await redis.set(key, JSON.stringify(entry));
+        console.error(`swap from ${nonce}`, key, entry);
+      }
     } else {
       // incoming tx
       const l0MessageReceivedTypes = [
@@ -241,16 +241,15 @@ const l0LogHandler = (network: Network, pk: string) => {
       );
       const nonce = eventData[4].toString();
       const srcChainId = eventData[1].toString();
-      const entry = await redis.get(
-        redisKey(`out-${srcChainId}-${eventData.dstChainId}-${nonce}`),
-      );
+      const key = entryKey(srcChainId, network.l0ChainId, nonce);
+      const entry = await redis.get(key);
       if (!entry) {
-        console.log(`pdst ${nonce} discarded`);
+        console.error(`${key} not found, discarded`);
         return;
       }
       const swapData: SwapEntry = JSON.parse(entry);
       if (swapData.processed) {
-        console.log(`pdst ${nonce} already processed`);
+        console.error(`pdst ${nonce} already processed (${key})`);
         return;
       }
       let oneInchRouter, oneInchData;
@@ -283,12 +282,9 @@ const l0LogHandler = (network: Network, pk: string) => {
           swapData.receiver,
           { gasPrice: await network.ethers.getGasPrice() },
         );
-      console.log(`swap to ${nonce} executed`, receipt2.hash);
+      console.error(`swap to ${nonce} executed`, key, receipt2.hash);
       swapData.processed = true;
-      await redis.set(
-        redisKey(`out-${srcChainId}-${eventData.dstChainId}-${nonce}`),
-        JSON.stringify(swapData),
-      );
+      await redis.set(key, JSON.stringify(swapData));
     }
   };
 };
@@ -320,14 +316,14 @@ export const l0Worker = async (chainId: ChainID, pk: string) => {
     }
 
     if (currentBlock > lastBlock) {
-      console.log(`processing blocks ${lastBlock}~${currentBlock}`);
+      console.error(`processing blocks ${lastBlock}~${currentBlock}`);
       const flt = network.l0CrossChainPool.filters.CrossChainSwap();
       flt.fromBlock = lastBlock;
       flt.toBlock = currentBlock;
       const logs = await network.ethers.getLogs(flt);
       await Promise.all(
         logs.map((l) => {
-          console.log(
+          console.error(
             `found event in block ${l.blockNumber} tx ${l.transactionHash}`,
           );
           const lp = network.l0CrossChainPool.interface.parseLog(l);
@@ -369,7 +365,7 @@ export const l0UpdateLastBlock = async (
   log = false,
 ) => {
   await redis.set(redisKey(`lastBlock-${chainId}`), blockNumber.toString());
-  log && console.log('updated');
+  log && console.error('updated');
 };
 
 export const l0ProcessHistory = async (
