@@ -216,7 +216,11 @@ const l0LogHandler = (network: Network, pk: string) => {
         processed: false,
       };
       await redis.set(
-        redisKey(`out-${network.l0ChainId}-${nonce}`),
+        redisKey(
+          `out-${
+            network.l0ChainId
+          }-${eventData.dstChainId.toString()}-${nonce}`,
+        ),
         JSON.stringify(entry),
       );
       console.log(`swap from ${nonce}`, entry);
@@ -237,7 +241,9 @@ const l0LogHandler = (network: Network, pk: string) => {
       );
       const nonce = eventData[4].toString();
       const srcChainId = eventData[1].toString();
-      const entry = await redis.get(redisKey(`out-${srcChainId}-${nonce}`));
+      const entry = await redis.get(
+        redisKey(`out-${srcChainId}-${eventData.dstChainId}-${nonce}`),
+      );
       if (!entry) {
         console.log(`pdst ${nonce} discarded`);
         return;
@@ -280,7 +286,7 @@ const l0LogHandler = (network: Network, pk: string) => {
       console.log(`swap to ${nonce} executed`, receipt2.hash);
       swapData.processed = true;
       await redis.set(
-        redisKey(`out-${srcChainId}-${nonce}`),
+        redisKey(`out-${srcChainId}-${eventData.dstChainId}-${nonce}`),
         JSON.stringify(swapData),
       );
     }
