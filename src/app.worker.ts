@@ -189,7 +189,7 @@ const l0LogHandler = (network: Network, pk: string) => {
     const l0MessageReceivedTopic =
       '0xeee37fced513bbf4fe6a13f3c18b58755a148b11de4c5849a17b4971885b58aa';
     const l0SwapStartedTopic =
-      '0x544869691f949907012809dab1a67d8e252528feea79760ae9305d9531d5b02c';
+      '0x7b0a3fab2034d26e1d5ffb5ba60ca0c0121664bae47dcaf0b742413274615167';
     const receipt = await ethers.getTransactionReceipt(log.transactionHash);
     const l0MessageReceivedLog = receipt.logs.filter(
       (l) => l.topics[0] === l0MessageReceivedTopic,
@@ -197,16 +197,13 @@ const l0LogHandler = (network: Network, pk: string) => {
 
     if (!l0MessageReceivedLog) {
       // outgoing tx
-      const nonce = parseInt(
+      const swapId =
         receipt.logs.filter((l) => l.topics[0] === l0SwapStartedTopic)[0]
-          ?.topics[1] || '0xfffffffffff',
-        16,
-      );
-      const eventData = await network.l0AggregatorRouter.pendingSwaps(
-        await network.l0AggregatorRouter.getSwapId(nonce, dstChainId),
-      );
+          ?.topics[1] ||
+        '0x0000000000000000000000000000000000000000000000000000000000000000';
+      const eventData = await network.l0AggregatorRouter.pendingSwaps(swapId);
       if (eventData.nonce.eq(0)) {
-        console.error(`psrc ${nonce} discarded`);
+        console.error(`psrc ${swapId} discarded`);
         return;
       }
       const entry: SwapEntry = {
@@ -229,7 +226,11 @@ const l0LogHandler = (network: Network, pk: string) => {
         console.error(`${storageKey} already exists`);
       } else {
         await redis.set(storageKey, JSON.stringify(entry));
-        console.error(`swap from ${nonce}`, storageKey, entry);
+        console.error(
+          `swap from ${eventData.nonce.toString()}`,
+          storageKey,
+          entry,
+        );
       }
     } else {
       // incoming tx
