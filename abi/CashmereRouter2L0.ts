@@ -66,12 +66,12 @@ export interface CashmereRouter2L0EventsContext {
   RoleRevoked(...parameters: any): EventFilter;
 }
 export type CashmereRouter2L0MethodNames =
-  | 'new'
   | 'CONTINUE_EXECUTOR_ROLE'
   | 'DEFAULT_ADMIN_ROLE'
   | 'ccRouter'
   | 'continueSwap'
   | 'getRoleAdmin'
+  | 'getSwapId'
   | 'grantRole'
   | 'hasRole'
   | 'initialize'
@@ -83,7 +83,7 @@ export type CashmereRouter2L0MethodNames =
   | 'supportsInterface'
   | 'withdrawTokens';
 export interface NewPendingSwapEventEmittedResponse {
-  id: BigNumberish;
+  id: Arrayish;
 }
 export interface RoleAdminChangedEventEmittedResponse {
   role: Arrayish;
@@ -101,21 +101,23 @@ export interface RoleRevokedEventEmittedResponse {
   sender: string;
 }
 export interface PendingSwapsResponse {
-  id: BigNumber;
-  0: BigNumber;
-  hgsAmount: BigNumber;
+  id: string;
+  0: string;
+  nonce: BigNumber;
   1: BigNumber;
+  hgsAmount: BigNumber;
+  2: BigNumber;
   hgsToken: string;
-  2: string;
-  dstToken: string;
   3: string;
+  dstToken: string;
+  4: string;
   dstChainId: number;
-  4: number;
+  5: number;
   receiver: string;
-  5: string;
+  6: string;
   processed: boolean;
-  6: boolean;
-  length: 7;
+  7: boolean;
+  length: 8;
 }
 export interface StartSwapRequest {
   srcToken: string;
@@ -129,13 +131,6 @@ export interface StartSwapRequest {
   dstChain: BigNumberish;
 }
 export interface CashmereRouter2L0 {
-  /**
-   * Payable: false
-   * Constant: false
-   * StateMutability: nonpayable
-   * Type: constructor
-   */
-  'new'(overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -191,6 +186,19 @@ export interface CashmereRouter2L0 {
   ): Promise<string>;
   /**
    * Payable: false
+   * Constant: true
+   * StateMutability: pure
+   * Type: function
+   * @param nonce Type: uint256, Indexed: false
+   * @param dstChainId Type: uint16, Indexed: false
+   */
+  getSwapId(
+    nonce: BigNumberish,
+    dstChainId: BigNumberish,
+    overrides?: ContractCallOverrides
+  ): Promise<string>;
+  /**
+   * Payable: false
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
@@ -235,10 +243,10 @@ export interface CashmereRouter2L0 {
    * Constant: true
    * StateMutability: view
    * Type: function
-   * @param parameter0 Type: uint256, Indexed: false
+   * @param parameter0 Type: bytes32, Indexed: false
    */
   pendingSwaps(
-    parameter0: BigNumberish,
+    parameter0: Arrayish,
     overrides?: ContractCallOverrides
   ): Promise<PendingSwapsResponse>;
   /**

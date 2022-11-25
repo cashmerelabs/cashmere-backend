@@ -39,6 +39,7 @@ export const CHAIN_IDS = [
 ];
 
 interface SwapEntry {
+  id: string;
   nonce: string;
   txid: string;
   hgsAmount: string;
@@ -108,7 +109,7 @@ export const networks = {
     '0x58DDb2cec22ef964ee3CB1C27C6D9Db982EE0159',
     '0x4524051687b6ff963Bd4316a6B7215F39f029196',
     '0x3Cd49a6046e675A6d4274CC773370C00a30bbf88',
-    '0x8241D13000E19e4BDb8fAACF7EA0e4225b1b3896',
+    '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '101',
   ),
   [POLYGON_CHAIN_ID]: new Network(
@@ -117,7 +118,7 @@ export const networks = {
     '0x0EC0492846C2B436Ef6937922621621AE4876FF9',
     '0x9657ff118FBC316B3484b006f4D46F53dADd2402',
     '0x9d3EE96e1Ac53a542cCE8642c69D7e11abbA059a',
-    '0x8241D13000E19e4BDb8fAACF7EA0e4225b1b3896',
+    '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '109',
   ),
   [ARBITRUM_CHAIN_ID]: new Network(
@@ -126,7 +127,7 @@ export const networks = {
     '0xf85252CB3D4f8cC3E05A8E4042b9EC9D2eC82653',
     '0x2bBfDbb623c173Be20cAb6CF4B855CFA5b0786a6',
     '0x83A64f931187bBF560F27Bf7204862b00D8e2CcB',
-    '0x8241D13000E19e4BDb8fAACF7EA0e4225b1b3896',
+    '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '110',
   ),
   [AVALANCHE_CHAIN_ID]: new Network(
@@ -135,7 +136,7 @@ export const networks = {
     '0xB28F8C2eD463bbf032fF0267f3A6924D2c2bb761',
     '0x2ad78787CCaf7FA8FAe8953FD78ab9163f81DcC8',
     '0x557278364B136a8D7686016b1930c8C7136d8af9',
-    '0x8241D13000E19e4BDb8fAACF7EA0e4225b1b3896',
+    '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '106',
   ),
   [BSC_CHAIN_ID]: new Network(
@@ -144,7 +145,7 @@ export const networks = {
     '0x56417c509CFEe5Ef376C6011eF5E341931682ed9',
     '0xB7DeD831Bc7Ae3f199Ea82A12E20f72E0B6ae64A',
     '0x98e1329eEa0CeB086278be4164793B9e3dadb732',
-    '0x8241D13000E19e4BDb8fAACF7EA0e4225b1b3896',
+    '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '102',
   ),
   [OPTIMISM_CHAIN_ID]: new Network(
@@ -153,7 +154,7 @@ export const networks = {
     '0x8b7Af56E9aBa6d8b96409A6285BFf1Dde86792C9',
     '0x557278364B136a8D7686016b1930c8C7136d8af9',
     '0x8EdB69919835e98b5a4f751FAdB78d66C880475C',
-    '0x8241D13000E19e4BDb8fAACF7EA0e4225b1b3896',
+    '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '111',
   ),
   [FANTOM_CHAIN_ID]: new Network(
@@ -162,7 +163,7 @@ export const networks = {
     '0x7Fc5e13Ca7a95bCa4a903C46Dc95160ae26feaa1',
     '0x8EdB69919835e98b5a4f751FAdB78d66C880475C',
     '0x128a85A855F40551A8FD1af9751959db212C84B0',
-    '0x8241D13000E19e4BDb8fAACF7EA0e4225b1b3896',
+    '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '112',
   ),
 };
@@ -201,13 +202,16 @@ const l0LogHandler = (network: Network, pk: string) => {
           ?.topics[1] || '0xfffffffffff',
         16,
       );
-      const eventData = await network.l0AggregatorRouter.pendingSwaps(nonce);
-      if (eventData.id.eq(0)) {
+      const eventData = await network.l0AggregatorRouter.pendingSwaps(
+        await network.l0AggregatorRouter.getSwapId(nonce, dstChainId),
+      );
+      if (eventData.nonce.eq(0)) {
         console.error(`psrc ${nonce} discarded`);
         return;
       }
       const entry: SwapEntry = {
-        nonce: eventData.id.toString(),
+        id: eventData.id.toString(),
+        nonce: eventData.nonce.toString(),
         txid: log.transactionHash,
         hgsAmount: eventData.hgsAmount.toString(),
         hgsToken: eventData.hgsToken,

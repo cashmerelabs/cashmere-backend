@@ -1,17 +1,12 @@
 [
   {
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
+        "internalType": "bytes32",
         "name": "id",
-        "type": "uint256"
+        "type": "bytes32"
       }
     ],
     "name": "NewPendingSwap",
@@ -191,6 +186,30 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "dstChainId",
+        "type": "uint16"
+      }
+    ],
+    "name": "getSwapId",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
@@ -256,16 +275,21 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint256"
+        "type": "bytes32"
       }
     ],
     "name": "pendingSwaps",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bytes32",
         "name": "id",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nonce",
         "type": "uint256"
       },
       {
@@ -401,7 +425,7 @@
             "type": "uint16"
           }
         ],
-        "internalType": "struct CashmereRouter2L0.SwapParams",
+        "internalType": "struct CashmereRouter2L0NoSig.SwapParams",
         "name": "params",
         "type": "tuple"
       }
