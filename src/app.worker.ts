@@ -105,7 +105,7 @@ class Network {
 export const networks = {
   [ETHEREUM_CHAIN_ID]: new Network(
     ETHEREUM_CHAIN_ID,
-    'https://eth-mainnet.g.alchemy.com/v2/dcp_zwzQ14lWcfuLy3tGJxz1MV0VtRY4',
+    'https://rpc.ankr.com/eth/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
     '0x58DDb2cec22ef964ee3CB1C27C6D9Db982EE0159',
     '0x4524051687b6ff963Bd4316a6B7215F39f029196',
     '0x3Cd49a6046e675A6d4274CC773370C00a30bbf88',
@@ -114,7 +114,7 @@ export const networks = {
   ),
   [POLYGON_CHAIN_ID]: new Network(
     POLYGON_CHAIN_ID,
-    'https://polygon-rpc.com',
+    'https://rpc.ankr.com/polygon/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
     '0x0EC0492846C2B436Ef6937922621621AE4876FF9',
     '0x9657ff118FBC316B3484b006f4D46F53dADd2402',
     '0x9d3EE96e1Ac53a542cCE8642c69D7e11abbA059a',
@@ -123,7 +123,7 @@ export const networks = {
   ),
   [ARBITRUM_CHAIN_ID]: new Network(
     ARBITRUM_CHAIN_ID,
-    'https://arb1.arbitrum.io/rpc',
+    'https://rpc.ankr.com/arbitrum/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
     '0xf85252CB3D4f8cC3E05A8E4042b9EC9D2eC82653',
     '0x2bBfDbb623c173Be20cAb6CF4B855CFA5b0786a6',
     '0x83A64f931187bBF560F27Bf7204862b00D8e2CcB',
@@ -132,7 +132,7 @@ export const networks = {
   ),
   [AVALANCHE_CHAIN_ID]: new Network(
     AVALANCHE_CHAIN_ID,
-    'https://api.avax.network/ext/bc/C/rpc',
+    'https://rpc.ankr.com/avalanche/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
     '0xB28F8C2eD463bbf032fF0267f3A6924D2c2bb761',
     '0x2ad78787CCaf7FA8FAe8953FD78ab9163f81DcC8',
     '0x557278364B136a8D7686016b1930c8C7136d8af9',
@@ -141,7 +141,7 @@ export const networks = {
   ),
   [BSC_CHAIN_ID]: new Network(
     BSC_CHAIN_ID,
-    'https://bsc-dataseed.binance.org/',
+    'https://rpc.ankr.com/bsc/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
     '0x56417c509CFEe5Ef376C6011eF5E341931682ed9',
     '0xB7DeD831Bc7Ae3f199Ea82A12E20f72E0B6ae64A',
     '0x98e1329eEa0CeB086278be4164793B9e3dadb732',
@@ -150,7 +150,7 @@ export const networks = {
   ),
   [OPTIMISM_CHAIN_ID]: new Network(
     OPTIMISM_CHAIN_ID,
-    'https://opt-mainnet.g.alchemy.com/v2/x6bH_tMmUpkTR5kaOQrWg8uITMZyhYeH',
+    'https://rpc.ankr.com/optimism/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
     '0x8b7Af56E9aBa6d8b96409A6285BFf1Dde86792C9',
     '0x557278364B136a8D7686016b1930c8C7136d8af9',
     '0x8EdB69919835e98b5a4f751FAdB78d66C880475C',
@@ -159,7 +159,7 @@ export const networks = {
   ),
   [FANTOM_CHAIN_ID]: new Network(
     FANTOM_CHAIN_ID,
-    'https://rpc.ankr.com/fantom/',
+    'https://rpc.ankr.com/fantom/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
     '0x7Fc5e13Ca7a95bCa4a903C46Dc95160ae26feaa1',
     '0x8EdB69919835e98b5a4f751FAdB78d66C880475C',
     '0x128a85A855F40551A8FD1af9751959db212C84B0',
