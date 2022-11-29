@@ -8,10 +8,27 @@ import {
 import { AppService, ChainID } from './app.service';
 import { IsEthereumAddress, IsIn, IsNumberString } from 'class-validator';
 import axios from 'axios';
-import { ethers } from 'ethers';
+import { constants, ethers } from 'ethers';
 import { CHAIN_IDS, networks } from './app.worker';
 
 class GetSwapParamsQueryDto {
+  @IsIn(CHAIN_IDS)
+  fromChain: ChainID;
+
+  @IsEthereumAddress()
+  fromToken: string;
+
+  @IsNumberString()
+  fromAmount: number;
+
+  @IsIn(CHAIN_IDS)
+  toChain: ChainID;
+
+  @IsEthereumAddress()
+  toToken: string;
+}
+
+class GetSwapEstimateQueryDto {
   @IsIn(CHAIN_IDS)
   fromChain: ChainID;
 
@@ -32,92 +49,6 @@ class GetSwapParamsQueryDto {
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // @Get()
-  // getHello(): string {
-  //   return this.appService.getHello();
-  // }
-
-  // @Get('swapParams')
-  // async getSwapParams(
-  //   @Query()
-  //   {
-  //     fromChain,
-  //     fromToken,
-  //     fromAmount,
-  //     toChain,
-  //     toToken,
-  //   }: GetSwapParamsQueryDto,
-  // ): Promise<object> {
-  //   const pool = await this.appService.getPoolContract(fromChain);
-  //   const poolCC = await this.appService.getCrossChainPoolContract(fromChain);
-  //   const routerCC = await this.appService.getCrossChainRouter(fromChain);
-  //   const swapRouter = await this.appService.getSwapRouter(fromChain);
-  //   const { lowestAsset: lwsAssetAddress, highestAsset: hgsAssetAddress } =
-  //     await pool.getHighestAndLowestCompRatioAssets();
-  //   const lwsAsset = await this.appService.getAssetContract(
-  //     fromChain,
-  //     lwsAssetAddress,
-  //   );
-  //   const lwsTokenAddress = await lwsAsset.underlyingToken();
-  //   const hgsAsset = await this.appService.getAssetContract(
-  //     fromChain,
-  //     hgsAssetAddress,
-  //   );
-  //   const hgsTokenAddress = await hgsAsset.underlyingToken();
-  //   const hgsAssetId = (
-  //     await routerCC['getAssetData(uint256,address)'](
-  //       fromChain,
-  //       hgsAssetAddress,
-  //     )
-  //   ).assetId;
-  //   let hgsTokenAddressDest = (
-  //     await routerCC['getAssetData(uint256,uint256)'](toChain, hgsAssetId)
-  //   ).nativeTokenAddress;
-  //   if (hgsTokenAddressDest === '0x54Ee6EC91B990284B811d1eb20e3637ba30f1efb') {
-  //     hgsTokenAddressDest = '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9';
-  //   }
-  //   const { data } = await axios.get(
-  //     `https://api.1inch.io/v4.0/${fromChain}/swap`,
-  //     {
-  //       params: {
-  //         fromTokenAddress: fromToken,
-  //         toTokenAddress: lwsTokenAddress,
-  //         amount: fromAmount,
-  //         fromAddress: swapRouter.address,
-  //         slippage: '1',
-  //         disableEstimate: true,
-  //       },
-  //     },
-  //   );
-  //   console.log(data.tx);
-  //   // pool.swapCrossChain(fromToken, fromAmount, minimumToAmount, dstAssetId, dstChain, deadline, executionFee);
-  //   const swapData = swapRouter.interface.encodeFunctionData(
-  //     swapRouter.interface.functions[
-  //       'startSwap((address,uint256,address,address,bytes,address,uint256,address,uint256))'
-  //     ],
-  //     [
-  //       [
-  //         fromToken,
-  //         fromAmount,
-  //         lwsTokenAddress,
-  //         data.tx.to,
-  //         data.tx.data,
-  //         hgsTokenAddressDest,
-  //         hgsAssetId,
-  //         toToken,
-  //         toChain,
-  //       ],
-  //     ],
-  //   );
-  //   const value = (await swapRouter.estimateFee()).toString();
-  //   return {
-  //     data: swapData,
-  //     to: swapRouter.address,
-  //     value,
-  //   };
-  //   // return { fromChain, fromToken, fromAmount, toChain, toToken };
-  // }
-
   @Get('swapParamsL0')
   async getSwapParamsL0(
     @Query()
@@ -131,6 +62,7 @@ export class AppController {
   ): Promise<object> {
     try {
       console.error(
+        'getParams',
         JSON.stringify({
           fromChain,
           fromToken,
@@ -145,12 +77,25 @@ export class AppController {
       const poolCC = fromNetwork.l0CrossChainPool;
       const routerCC = fromNetwork.l0CrossChainRouter;
       const swapRouter = fromNetwork.l0AggregatorRouter;
-      const { lowestAsset: lwsAssetAddress, highestAsset: hgsAssetAddress } =
+      let { lowestAsset: lwsAssetAddress, highestAsset: hgsAssetAddress } =
         await pool.getHighestAndLowestCompRatioAssets();
+      if (lwsAssetAddress === hgsAssetAddress) {
+        lwsAssetAddress = (
+          await routerCC['getAssetData(uint16,uint256)'](
+            fromNetwork.l0ChainId,
+            1,
+          )
+        ).nativeAssetAddress;
+        hgsAssetAddress = (
+          await routerCC['getAssetData(uint16,uint256)'](
+            fromNetwork.l0ChainId,
+            2,
+          )
+        ).nativeAssetAddress;
+      }
       const lwsAsset = fromNetwork.assetContract(lwsAssetAddress);
       const lwsTokenAddress = await lwsAsset.underlyingToken();
       const hgsAsset = fromNetwork.assetContract(hgsAssetAddress);
-      const hgsTokenAddress = await hgsAsset.underlyingToken();
       const hgsAssetId = (
         await routerCC['getAssetData(uint16,address)'](
           fromNetwork.l0ChainId,
@@ -163,24 +108,52 @@ export class AppController {
       );
       const hgsTokenAddressDest = assetData.nativeTokenAddress;
       const hgsAssetAddressDest = assetData.nativeAssetAddress;
-      const { data } = await axios.get(
-        `https://api.1inch.io/v4.0/${fromChain}/swap`,
-        {
-          params: {
-            fromTokenAddress: fromToken,
-            toTokenAddress: lwsTokenAddress,
-            amount: fromAmount,
-            fromAddress: swapRouter.address,
-            slippage: '1',
-            disableEstimate: true,
+      let oneInchData, oneInchRouter, toTokenAmount;
+      if (fromToken.toLowerCase() == lwsTokenAddress.toLowerCase()) {
+        oneInchData = '0x00';
+        oneInchRouter = constants.AddressZero;
+        toTokenAmount = fromAmount;
+      } else {
+        const r = await axios.get(
+          `https://api.1inch.io/v4.0/${fromChain}/swap`,
+          {
+            params: {
+              fromTokenAddress: fromToken,
+              toTokenAddress: lwsTokenAddress,
+              amount: fromAmount,
+              fromAddress: swapRouter.address,
+              slippage: '1',
+              disableEstimate: true,
+            },
           },
-        },
-      );
-      console.log(data.tx);
+        );
+        oneInchData = r.data.tx.data;
+        oneInchRouter = r.data.tx.to;
+        toTokenAmount = r.data.toTokenAmount;
+        console.log(r.data.tx);
+      }
+      // const swapData = swapRouter.interface.encodeFunctionData(
+      //   swapRouter.interface.functions[
+      //     'startSwap((address,uint256,address,address,bytes,address,uint256,address,uint16))'
+      //   ],
+      //   [
+      //     [
+      //       fromToken,
+      //       fromAmount,
+      //       lwsTokenAddress,
+      //       oneInchRouter,
+      //       oneInchData,
+      //       hgsTokenAddressDest,
+      //       hgsAssetId,
+      //       toToken,
+      //       toNetwork.l0ChainId,
+      //     ],
+      //   ],
+      // );
       const { potentialOutcome, haircut } = await poolCC.quotePotentialSwap(
         lwsTokenAddress,
         hgsTokenAddressDest,
-        data.toTokenAmount,
+        toTokenAmount,
         hgsAssetId,
         toNetwork.l0ChainId,
       );
@@ -215,16 +188,20 @@ export class AppController {
           hgsToken: hgsTokenAddressDest,
           dstToken: toToken,
           hgsAssetId: hgsAssetId,
-          oneInchData: data.tx.data,
-          oneInchAddress: data.tx.to,
+          oneInchData: oneInchData,
+          oneInchAddress: oneInchRouter,
           dstChainId: toNetwork.l0ChainId,
           srcAmount: fromAmount,
           hgsEstimate: potentialOutcome.toString(),
         },
-        // data: swapData,
         to: swapRouter.address,
         value,
       };
+      // return {
+      //   data: swapData,
+      //   to: swapRouter.address,
+      //   value,
+      // };
     } catch (e) {
       console.error(e);
       throw new HttpException(
@@ -237,4 +214,18 @@ export class AppController {
       );
     }
   }
+
+  // @Get('swapEstimateL0')
+  // async swapEstimateL0(
+  //   @Query()
+  //   {
+  //     fromChain,
+  //     fromToken,
+  //     fromAmount,
+  //     toChain,
+  //     toToken,
+  //   }: GetSwapEstimateQueryDto,
+  // ) {
+  //
+  // }
 }
