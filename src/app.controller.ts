@@ -45,6 +45,8 @@ class GetSwapEstimateQueryDto {
   toToken: string;
 }
 
+const usdtBroken = true;
+
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -93,23 +95,31 @@ export class AppController {
           )
         ).nativeAssetAddress;
       }
-      const lwsAsset = fromNetwork.assetContract(lwsAssetAddress); // -- USDT broken
-      // const lwsAsset = fromNetwork.assetContract(
-      //   (
-      //     await routerCC['getAssetData(uint16,uint256)'](
-      //       fromNetwork.l0ChainId,
-      //       1,
-      //     )
-      //   ).nativeAssetAddress,
-      // );
+      let lwsAsset;
+      if (!usdtBroken) {
+        lwsAsset = fromNetwork.assetContract(lwsAssetAddress);
+      } else {
+        lwsAsset = fromNetwork.assetContract(
+          (
+            await routerCC['getAssetData(uint16,uint256)'](
+              fromNetwork.l0ChainId,
+              1,
+            )
+          ).nativeAssetAddress,
+        );
+      }
       const lwsTokenAddress = await lwsAsset.underlyingToken();
-      const hgsAssetId = (
-        await routerCC['getAssetData(uint16,address)'](
-          fromNetwork.l0ChainId,
-          hgsAssetAddress,
-        )
-      ).assetId; // -- USDT broken
-      // const hgsAssetId = 1;
+      let hgsAssetId;
+      if (!usdtBroken) {
+        hgsAssetId = (
+          await routerCC['getAssetData(uint16,address)'](
+            fromNetwork.l0ChainId,
+            hgsAssetAddress,
+          )
+        ).assetId;
+      } else {
+        hgsAssetId = 1;
+      }
       const assetData = await routerCC['getAssetData(uint16,uint256)'](
         toNetwork.l0ChainId,
         hgsAssetId,
