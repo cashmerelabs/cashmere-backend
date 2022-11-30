@@ -93,15 +93,23 @@ export class AppController {
           )
         ).nativeAssetAddress;
       }
-      const lwsAsset = fromNetwork.assetContract(lwsAssetAddress);
+      const lwsAsset = fromNetwork.assetContract(lwsAssetAddress); // -- USDT broken
+      // const lwsAsset = fromNetwork.assetContract(
+      //   (
+      //     await routerCC['getAssetData(uint16,uint256)'](
+      //       fromNetwork.l0ChainId,
+      //       1,
+      //     )
+      //   ).nativeAssetAddress,
+      // );
       const lwsTokenAddress = await lwsAsset.underlyingToken();
-      const hgsAsset = fromNetwork.assetContract(hgsAssetAddress);
       const hgsAssetId = (
         await routerCC['getAssetData(uint16,address)'](
           fromNetwork.l0ChainId,
           hgsAssetAddress,
         )
-      ).assetId;
+      ).assetId; // -- USDT broken
+      // const hgsAssetId = 1;
       const assetData = await routerCC['getAssetData(uint16,uint256)'](
         toNetwork.l0ChainId,
         hgsAssetId,
@@ -132,24 +140,13 @@ export class AppController {
         toTokenAmount = r.data.toTokenAmount;
         console.log(r.data.tx);
       }
-      // const swapData = swapRouter.interface.encodeFunctionData(
-      //   swapRouter.interface.functions[
-      //     'startSwap((address,uint256,address,address,bytes,address,uint256,address,uint16))'
-      //   ],
-      //   [
-      //     [
-      //       fromToken,
-      //       fromAmount,
-      //       lwsTokenAddress,
-      //       oneInchRouter,
-      //       oneInchData,
-      //       hgsTokenAddressDest,
-      //       hgsAssetId,
-      //       toToken,
-      //       toNetwork.l0ChainId,
-      //     ],
-      //   ],
-      // );
+      console.log([
+        lwsTokenAddress,
+        hgsTokenAddressDest,
+        toTokenAmount,
+        hgsAssetId,
+        toNetwork.l0ChainId,
+      ]);
       const { potentialOutcome, haircut } = await poolCC.quotePotentialSwap(
         lwsTokenAddress,
         hgsTokenAddressDest,
@@ -166,6 +163,7 @@ export class AppController {
           'address',
           'uint256',
           'uint256',
+          'bytes',
         ],
         [
           swapRouter.address,
@@ -175,6 +173,7 @@ export class AppController {
           hgsAssetAddressDest,
           potentialOutcome,
           haircut,
+          '0x' + '00'.repeat(32 + 32 + 32 + 32 + 32 + 32 + (32 * 2 + 96)), // uint256, address, address, address, uint256, address, (signature)
         ],
       );
       const value = await routerCC.estimateFee(
@@ -190,6 +189,7 @@ export class AppController {
           hgsAssetId: hgsAssetId,
           oneInchData: oneInchData,
           oneInchAddress: oneInchRouter,
+          srcChainId: fromNetwork.l0ChainId,
           dstChainId: toNetwork.l0ChainId,
           srcAmount: fromAmount,
           hgsEstimate: potentialOutcome.toString(),

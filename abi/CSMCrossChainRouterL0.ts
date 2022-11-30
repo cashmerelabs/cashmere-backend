@@ -94,11 +94,13 @@ export type CSMCrossChainRouterL0MethodNames =
   | 'getAssetData'
   | 'getCrossChainAssetParams'
   | 'getFailedMessages'
+  | 'getMessageReceived'
   | 'getRoleAdmin'
   | 'grantRole'
   | 'hasRole'
   | 'isApprovedAsset'
   | 'isApprovedAsset'
+  | 'isApprovedRouter'
   | 'layerZeroEndpoint'
   | 'lzReceive'
   | 'modifyCrossChainParams'
@@ -132,6 +134,7 @@ export interface MessageReceivedEventEmittedResponse {
   nonce: BigNumberish;
   amount: BigNumberish;
   haircut: BigNumberish;
+  signature: Arrayish;
 }
 export interface MessageRoutedEventEmittedResponse {
   destinationChain: BigNumberish;
@@ -200,6 +203,24 @@ export interface GetCrossChainAssetParamsResponse {
   result1: BigNumber;
   1: BigNumber;
   length: 2;
+}
+export interface CcreceiveparamsResponse {
+  sender: string;
+  0: string;
+  srcChainId: number;
+  1: number;
+  dstChainId: number;
+  2: number;
+  srcAsset: string;
+  3: string;
+  dstAsset: string;
+  4: string;
+  amount: BigNumber;
+  5: BigNumber;
+  haircut: BigNumber;
+  6: BigNumber;
+  signature: string;
+  7: string;
 }
 export interface CSMCrossChainRouterL0 {
   /**
@@ -347,6 +368,19 @@ export interface CSMCrossChainRouterL0 {
    * Constant: true
    * StateMutability: view
    * Type: function
+   * @param srcChain_ Type: uint16, Indexed: false
+   * @param nonce_ Type: uint256, Indexed: false
+   */
+  getMessageReceived(
+    srcChain_: BigNumberish,
+    nonce_: BigNumberish,
+    overrides?: ContractCallOverrides
+  ): Promise<CcreceiveparamsResponse>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
    * @param role Type: bytes32, Indexed: false
    */
   getRoleAdmin(
@@ -405,6 +439,17 @@ export interface CSMCrossChainRouterL0 {
     assetId_: BigNumberish,
     overrides?: ContractCallOverrides
   ): Promise<boolean>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param chainId_ Type: uint16, Indexed: false
+   */
+  isApprovedRouter(
+    chainId_: BigNumberish,
+    overrides?: ContractCallOverrides
+  ): Promise<string>;
   /**
    * Payable: false
    * Constant: true

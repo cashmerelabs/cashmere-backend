@@ -237,6 +237,25 @@ export interface QuotePotentialWithdrawFromOtherAssetResponse {
   1: BigNumber;
   length: 2;
 }
+export interface ReceiveSwapCrossChainRequest {
+  sender: string;
+  srcChainId: BigNumberish;
+  dstChainId: BigNumberish;
+  srcAsset: string;
+  dstAsset: string;
+  amount: BigNumberish;
+  haircut: BigNumberish;
+  signature: Arrayish;
+}
+export interface SwapCrossChainRequest {
+  fromToken: string;
+  fromAmount: BigNumberish;
+  minimumToAmount: BigNumberish;
+  destinationAsset: BigNumberish;
+  destinationChain: BigNumberish;
+  deadline: BigNumberish;
+  signature: Arrayish;
+}
 export interface PoolCrossChainL0 {
   /**
    * Payable: false
@@ -438,20 +457,10 @@ export interface PoolCrossChainL0 {
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
-   * @param sender Type: address, Indexed: false
-   * @param srcAssetAddress Type: address, Indexed: false
-   * @param srcChain Type: uint16, Indexed: false
-   * @param srcAmount Type: uint256, Indexed: false
-   * @param dstAssetAddress Type: address, Indexed: false
-   * @param haircut Type: uint256, Indexed: false
+   * @param params Type: tuple, Indexed: false
    */
   receiveSwapCrossChain(
-    sender: string,
-    srcAssetAddress: string,
-    srcChain: BigNumberish,
-    srcAmount: BigNumberish,
-    dstAssetAddress: string,
-    haircut: BigNumberish,
+    params: ReceiveSwapCrossChainRequest,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -612,20 +621,10 @@ export interface PoolCrossChainL0 {
    * Constant: false
    * StateMutability: payable
    * Type: function
-   * @param fromToken Type: address, Indexed: false
-   * @param fromAmount Type: uint256, Indexed: false
-   * @param minimumToAmount Type: uint256, Indexed: false
-   * @param destinationAsset Type: uint256, Indexed: false
-   * @param destinationChain Type: uint16, Indexed: false
-   * @param deadline Type: uint256, Indexed: false
+   * @param requestParams_ Type: tuple, Indexed: false
    */
   swapCrossChain(
-    fromToken: string,
-    fromAmount: BigNumberish,
-    minimumToAmount: BigNumberish,
-    destinationAsset: BigNumberish,
-    destinationChain: BigNumberish,
-    deadline: BigNumberish,
+    requestParams_: SwapCrossChainRequest,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**

@@ -127,10 +127,10 @@ export const networks = {
   [ARBITRUM_CHAIN_ID]: new Network(
     ARBITRUM_CHAIN_ID,
     'https://rpc.ankr.com/arbitrum/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
-    '0xf85252CB3D4f8cC3E05A8E4042b9EC9D2eC82653',
-    '0x2bBfDbb623c173Be20cAb6CF4B855CFA5b0786a6',
-    '0x83A64f931187bBF560F27Bf7204862b00D8e2CcB',
-    '0xF8e8fcC6eCC323fae58E18CFf9065dac65AAeC93',
+    '0x89c2fCe0Af62Dce683830fD3A1C3f56EBCfCE08D',
+    '0xeDabfEC959e62617BA597A205B9489D3Ca8D87CD',
+    '0xb0520bd64fe1496864374D21DE27B291Ecd16972',
+    '0x6d3Cb02030da462438A6A23FC500d92be9DfBA0a',
     '110',
   ),
   [AVALANCHE_CHAIN_ID]: new Network(
@@ -145,10 +145,10 @@ export const networks = {
   [BSC_CHAIN_ID]: new Network(
     BSC_CHAIN_ID,
     'https://rpc.ankr.com/bsc/72e7331ddbdbf267e393fcd013e7453ee72eaed83621f61e2aaf6b52585389ee',
-    '0x56417c509CFEe5Ef376C6011eF5E341931682ed9',
-    '0xB7DeD831Bc7Ae3f199Ea82A12E20f72E0B6ae64A',
-    '0x98e1329eEa0CeB086278be4164793B9e3dadb732',
-    '0xF8e8fcC6eCC323fae58E18CFf9065dac65AAeC93',
+    '0x89D26b3E199E7b0d89a587a1709579Cf5ece3d64',
+    '0x6A8A9918Af5da3F5cBf107c8a0d1c7d43FA86163',
+    '0x3782d8FD91EC44d9364538d163b2DC8E138501CE',
+    '0x6d3Cb02030da462438A6A23FC500d92be9DfBA0a',
     '102',
   ),
   [OPTIMISM_CHAIN_ID]: new Network(
@@ -291,16 +291,10 @@ const l0LogHandler = (network: Network, pk: string) => {
       }
       const wallet = new Wallet(pk, network.ethers);
       const params = {
-        lwsToken: swapData.lwsToken,
-        hgsToken: swapData.hgsToken,
-        hgsAmount: swapData.hgsAmount,
-        dstToken: swapData.dstToken,
-        router1Inch: data.tx.to,
-        data: data.tx.data,
-        receiver: swapData.receiver,
-        minHgsAmount: swapData.minHgsAmount,
-        signature: swapData.signature,
         srcChainId: l0ChainIdMap[srcChainId],
+        nonce: swapData.nonce,
+        router1Inch: oneInchRouter,
+        data: oneInchData,
       };
       console.log(params);
       const receipt2 = await network.l0AggregatorRouter
