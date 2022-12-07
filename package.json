@@ -27,7 +27,8 @@
     "router-l0-abi": "abi-types-generator ./abi/CashmereRouter2L0.abi.json --provider=ethers_v5",
     "router-cc-abi": "abi-types-generator ./abi/CSMCrossChainRouter.abi.json --provider=ethers_v5",
     "router-cc-l0-abi": "abi-types-generator ./abi/CSMCrossChainRouterL0.abi.json --provider=ethers_v5",
-    "abi": "yarn asset-abi && yarn pool-abi && yarn pool-cc-abi && yarn router-abi && yarn router-cc-abi && yarn pool-cc-l0-abi && yarn router-cc-l0-abi && yarn router-l0-abi",
+    "oracle-abi": "abi-types-generator ./abi/OffchainOracle.abi.json --provider=ethers_v5",
+    "abi": "yarn asset-abi && yarn pool-abi && yarn pool-cc-abi && yarn router-abi && yarn router-cc-abi && yarn pool-cc-l0-abi && yarn router-cc-l0-abi && yarn router-l0-abi && yarn oracle-abi",
     "manage": "ts-node -r tsconfig-paths/register src/manage.ts"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "alchemy-sdk": "^2.1.0",
     "axios": "^0.27.2",
+    "big.js": "^6.2.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "ethers": "^5.7.1",
@@ -52,6 +54,7 @@
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
+    "@types/big.js": "^6.1.6",
     "@types/express": "^4.17.13",
     "@types/jest": "28.1.8",
     "@types/node": "^16.0.0",

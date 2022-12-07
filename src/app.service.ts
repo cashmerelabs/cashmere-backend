@@ -1,109 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { Alchemy, Network } from 'alchemy-sdk';
-import { BigNumber, ethers, Transaction, Wallet } from 'ethers';
-
-import { ContractContext as PoolCrossChainContext } from '../abi/PoolCrossChain';
-import * as PoolCrossChainABI from '../abi/PoolCrossChain.abi.json';
-import { ContractContext as PoolCrossChainL0Context } from '../abi/PoolCrossChainL0';
-import * as PoolCrossChainL0ABI from '../abi/PoolCrossChainL0.abi.json';
-import { ContractContext as PoolContext } from '../abi/Pool';
-import * as PoolABI from '../abi/Pool.abi.json';
-import { ContractContext as AssetContext } from '../abi/Asset';
-import * as AssetABI from '../abi/Asset.abi.json';
-import { ContractContext as CashmereRouter2Context } from '../abi/CashmereRouter2';
-import * as CashmereRouter2ABI from '../abi/CashmereRouter2.abi.json';
-import { ContractContext as CashmereRouter2L0Context } from '../abi/CashmereRouter2L0';
-import * as CashmereRouter2L0ABI from '../abi/CashmereRouter2L0.abi.json';
-import { ContractContext as CSMRouterContext } from '../abi/CSMCrossChainRouter';
-import * as CSMRouterABI from '../abi/CSMCrossChainRouter.abi.json';
-import { ContractContext as CSMRouterL0Context } from '../abi/CSMCrossChainRouterL0';
-import * as CSMRouterL0ABI from '../abi/CSMCrossChainRouterL0.abi.json';
+// import { Alchemy, Network } from 'alchemy-sdk';
+// import { BigNumber, ethers, Transaction, Wallet } from 'ethers';
+//
+// import { ContractContext as PoolCrossChainContext } from '../abi/PoolCrossChain';
+// import * as PoolCrossChainABI from '../abi/PoolCrossChain.abi.json';
+// import { ContractContext as PoolCrossChainL0Context } from '../abi/PoolCrossChainL0';
+// import * as PoolCrossChainL0ABI from '../abi/PoolCrossChainL0.abi.json';
+// import { ContractContext as PoolContext } from '../abi/Pool';
+// import * as PoolABI from '../abi/Pool.abi.json';
+// import { ContractContext as AssetContext } from '../abi/Asset';
+// import * as AssetABI from '../abi/Asset.abi.json';
+// import { ContractContext as CashmereRouter2Context } from '../abi/CashmereRouter2';
+// import * as CashmereRouter2ABI from '../abi/CashmereRouter2.abi.json';
+// import { ContractContext as CashmereRouter2L0Context } from '../abi/CashmereRouter2L0';
+// import * as CashmereRouter2L0ABI from '../abi/CashmereRouter2L0.abi.json';
+// import { ContractContext as CSMRouterContext } from '../abi/CSMCrossChainRouter';
+// import * as CSMRouterABI from '../abi/CSMCrossChainRouter.abi.json';
+// import { ContractContext as CSMRouterL0Context } from '../abi/CSMCrossChainRouterL0';
+// import * as CSMRouterL0ABI from '../abi/CSMCrossChainRouterL0.abi.json';
 import { ConsoleService } from 'nestjs-console';
-import axios from 'axios';
-import { Log } from 'ethereum-abi-types-generator';
-import { l0ProcessHistory, l0UpdateLastBlock, l0Worker } from './app.worker';
+// import axios from 'axios';
+// import { Log } from 'ethereum-abi-types-generator';
+import {
+  ChainID,
+  l0ProcessHistory,
+  l0UpdateLastBlock,
+  l0Worker,
+} from './app.worker';
 import { ConfigService } from '@nestjs/config';
-
-const POLYGON_CHAIN_ID = '137';
-const ARBITRUM_CHAIN_ID = '42161';
-const FANTOM_CHAIN_ID = '250';
-type ChainID = typeof POLYGON_CHAIN_ID | typeof ARBITRUM_CHAIN_ID;
-// | typeof FANTOM_CHAIN_ID;
-
-const crossChainPools = {
-  [POLYGON_CHAIN_ID]: '0xCE2f90a3Cd569605b80B26e76dD49f4E57ff7917',
-  [ARBITRUM_CHAIN_ID]: '0xf11AE6fB091Fe4bf88Ec9B62393fab32aEDfCF25',
-};
-
-const crossChainRouters = {
-  [POLYGON_CHAIN_ID]: '0x381BA793Ac7DEc1f8803CDF23985E768D03af008',
-  [ARBITRUM_CHAIN_ID]: '0xAD8b94Db6D34305DD23f89B5DA652B5439d72670',
-};
-
-const localPools = {
-  [POLYGON_CHAIN_ID]: '0xd2Fb0071807b26e9dEf5e967cC477296836bC441',
-  [ARBITRUM_CHAIN_ID]: '0xFB59b46D6D7Ae88d985651975C05e2783884c951',
-};
-
-const swapRouters = {
-  [POLYGON_CHAIN_ID]: '0x064415094713Cb9De5f0bCD2d9Ce6f1A92D91c70',
-  [ARBITRUM_CHAIN_ID]: '0x064415094713Cb9De5f0bCD2d9Ce6f1A92D91c70',
-};
-
-const crossChainPoolsL0 = {
-  [POLYGON_CHAIN_ID]: '0x05eb67f04C768945E5a0862F3b0859F5946D0d2c',
-  [ARBITRUM_CHAIN_ID]: '0x8b9fca7b49550f5C58F0edd6110cC90590814eAA',
-  // [FANTOM_CHAIN_ID]: '0x6C26792e2953A589C68B3b7f3705E9ceeB221834',
-};
-
-const crossChainRoutersL0 = {
-  [POLYGON_CHAIN_ID]: '0x9657ff118FBC316B3484b006f4D46F53dADd2402',
-  [ARBITRUM_CHAIN_ID]: '0x2bBfDbb623c173Be20cAb6CF4B855CFA5b0786a6',
-  // [FANTOM_CHAIN_ID]: '0x8EdB69919835e98b5a4f751FAdB78d66C880475C',
-};
-
-const localPoolsL0 = {
-  [POLYGON_CHAIN_ID]: '0x9d3EE96e1Ac53a542cCE8642c69D7e11abbA059a',
-  [ARBITRUM_CHAIN_ID]: '0x83A64f931187bBF560F27Bf7204862b00D8e2CcB',
-};
-
-const swapRoutersL0 = {
-  [POLYGON_CHAIN_ID]: '0x10b65cAC61c153dED0460778F322906abAB46964',
-  [ARBITRUM_CHAIN_ID]: '0x10b65cAC61c153dED0460778F322906abAB46964',
-  // [FANTOM_CHAIN_ID]: '0x10b65cAC61c153dED0460778F322906abAB46964',
-};
-
-const assets = {
-  [POLYGON_CHAIN_ID]: [
-    '0x3DA1D8dF0a81F2bE85cFAeaf2bb1801850D5b1E9',
-    '0x24E6E26c3fd477cf32026Ad7030C47c23082f048',
-  ],
-  [ARBITRUM_CHAIN_ID]: [
-    '0x54Ee6EC91B990284B811d1eb20e3637ba30f1efb',
-    '0x7208c5B0B192cA7209438e400fa66362E7291f46',
-  ],
-};
-
-export const assetsL0: { [k in ChainID]: string[] } = {
-  [POLYGON_CHAIN_ID]: [
-    '0xA749BDD338B6193113cc4b09D5F5a1b4A83ce2e1',
-    '0xfb7571DDe0af36954479f7e0487538766cB5B227',
-  ],
-  [ARBITRUM_CHAIN_ID]: [
-    '0x6Ed9Dbf5A311D288C6367d30f110a8BA4c531aD5',
-    '0x5d5a2f05F2803576506dc15346C8006eb0E7F442',
-  ],
-};
-
-type PendingSwap = {
-  id: string;
-  hgsAmount: BigNumber;
-  hgsToken: string;
-  dstToken: string;
-  dstChainId: BigNumber | number;
-  receiver: string;
-  processed: boolean;
-};
 
 @Injectable()
 export class AppService {
@@ -131,20 +55,24 @@ export class AppService {
       {
         command: 'parseLogsL0 <networkId> <fromBlock>',
       },
-      async (networkId: string, fromBlock: string) =>
-        await l0ProcessHistory(networkId as ChainID, parseInt(fromBlock), pk),
+      async (networkId: string, fromBlock: string) => {
+        await l0ProcessHistory(networkId as ChainID, parseInt(fromBlock), pk);
+        process.exit();
+      },
       cli,
     );
     consoleService.createCommand(
       {
         command: 'updateLastBlock <networkId> <lastBlock>',
       },
-      async (networkId: string, lastBlock: string) =>
+      async (networkId: string, lastBlock: string) => {
         await l0UpdateLastBlock(
           networkId as ChainID,
-          parseInt(lastBlock),
+          lastBlock === 'latest' ? 'latest' : parseInt(lastBlock),
           true,
-        ),
+        );
+        process.exit();
+      },
       cli,
     );
   }
@@ -532,5 +460,3 @@ export class AppService {
   //   // }
   // };
 }
-
-export { POLYGON_CHAIN_ID, ARBITRUM_CHAIN_ID, ChainID };
