@@ -6,14 +6,14 @@ module.exports = {
     },
     {
       name: 'worker-sign-bsc',
-      interpreter: 'ts-node',
+      interpreter: './node_modules/.bin/ts-node',
       interpreter_args: '-r tsconfig-paths/register',
       script: './src/manage.ts',
       args: 'workerL0 56',
     },
     {
       name: 'worker-sign-poly',
-      interpreter: 'ts-node',
+      interpreter: './node_modules/.bin/ts-node',
       interpreter_args: '-r tsconfig-paths/register',
       script: './src/manage.ts',
       args: 'workerL0 42161',
