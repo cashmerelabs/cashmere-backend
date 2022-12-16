@@ -1,18 +1,7 @@
-import {
-  ContractTransaction,
-  ContractInterface,
-  BytesLike as Arrayish,
-  BigNumber,
-  BigNumberish,
-} from 'ethers';
+import { ContractTransaction, ContractInterface, BytesLike as Arrayish, BigNumber, BigNumberish } from 'ethers';
 import { EthersContractContextV5 } from 'ethereum-abi-types-generator';
 
-export type ContractContext = EthersContractContextV5<
-  CSMCrossChainRouterL0,
-  CSMCrossChainRouterL0MethodNames,
-  CSMCrossChainRouterL0EventsContext,
-  CSMCrossChainRouterL0Events
->;
+export type ContractContext = EthersContractContextV5<CSMCrossChainRouterL0, CSMCrossChainRouterL0MethodNames, CSMCrossChainRouterL0EventsContext, CSMCrossChainRouterL0Events>;
 
 export declare type EventFilter = {
   address?: string;
@@ -56,6 +45,7 @@ export interface ContractCallOverrides {
 }
 export type CSMCrossChainRouterL0Events =
   | 'ForceResumeL0'
+  | 'GasForSRCReceiverUpdated'
   | 'MessageFailed'
   | 'MessageReceived'
   | 'MessageRouted'
@@ -69,6 +59,7 @@ export type CSMCrossChainRouterL0Events =
   | 'TogglePoolPerAssets';
 export interface CSMCrossChainRouterL0EventsContext {
   ForceResumeL0(...parameters: any): EventFilter;
+  GasForSRCReceiverUpdated(...parameters: any): EventFilter;
   MessageFailed(...parameters: any): EventFilter;
   MessageReceived(...parameters: any): EventFilter;
   MessageRouted(...parameters: any): EventFilter;
@@ -89,6 +80,7 @@ export type CSMCrossChainRouterL0MethodNames =
   | 'estimateFee'
   | 'failedMessages'
   | 'forceResumeL0Payload'
+  | 'gasForSRCReceiver'
   | 'getApprovedAssetId'
   | 'getAssetData'
   | 'getAssetData'
@@ -97,6 +89,7 @@ export type CSMCrossChainRouterL0MethodNames =
   | 'getMessageReceived'
   | 'getRoleAdmin'
   | 'grantRole'
+  | 'handleReceive'
   | 'hasRole'
   | 'isApprovedAsset'
   | 'isApprovedAsset'
@@ -112,6 +105,7 @@ export type CSMCrossChainRouterL0MethodNames =
   | 'retryMessage'
   | 'revokeRole'
   | 'route'
+  | 'setGasForSRCReceiver'
   | 'supportsInterface'
   | 'toggleApprovedRouters'
   | 'toggleAssetAndChain'
@@ -119,6 +113,10 @@ export type CSMCrossChainRouterL0MethodNames =
 export interface ForceResumeL0EventEmittedResponse {
   srcChain: BigNumberish;
   srcAddress: Arrayish;
+}
+export interface GasForSRCReceiverUpdatedEventEmittedResponse {
+  _oldGas: BigNumberish;
+  _newGas: BigNumberish;
 }
 export interface MessageFailedEventEmittedResponse {
   _srcChainId: BigNumberish;
@@ -131,7 +129,7 @@ export interface MessageReceivedEventEmittedResponse {
   srcChainId: BigNumberish;
   srcAsset: string;
   dstAsset: string;
-  nonce: BigNumberish;
+  id: Arrayish;
   amount: BigNumberish;
   haircut: BigNumberish;
   signature: Arrayish;
@@ -139,7 +137,7 @@ export interface MessageReceivedEventEmittedResponse {
 export interface MessageRoutedEventEmittedResponse {
   destinationChain: BigNumberish;
   destinationAddress: string;
-  nextNonce: BigNumberish;
+  id: Arrayish;
 }
 export interface ModifyCrossChainParamsEventEmittedResponse {
   chainId: BigNumberish;
@@ -209,17 +207,17 @@ export interface CcreceiveparamsResponse {
   0: string;
   srcChainId: number;
   1: number;
-  dstChainId: number;
-  2: number;
   srcAsset: string;
-  3: string;
+  2: string;
   dstAsset: string;
-  4: string;
+  3: string;
   amount: BigNumber;
-  5: BigNumber;
+  4: BigNumber;
   haircut: BigNumber;
-  6: BigNumber;
+  5: BigNumber;
   signature: string;
+  6: string;
+  id: string;
   7: string;
 }
 export interface CSMCrossChainRouterL0 {
@@ -230,10 +228,7 @@ export interface CSMCrossChainRouterL0 {
    * Type: constructor
    * @param l0Endpoint_ Type: address, Indexed: false
    */
-  'new'(
-    l0Endpoint_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  'new'(l0Endpoint_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -263,11 +258,7 @@ export interface CSMCrossChainRouterL0 {
    * @param dstChain_ Type: uint16, Indexed: false
    * @param payload_ Type: bytes, Indexed: false
    */
-  estimateFee(
-    dstChain_: BigNumberish,
-    payload_: Arrayish,
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
+  estimateFee(dstChain_: BigNumberish, payload_: Arrayish, overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: true
@@ -277,12 +268,7 @@ export interface CSMCrossChainRouterL0 {
    * @param parameter1 Type: bytes, Indexed: false
    * @param parameter2 Type: uint64, Indexed: false
    */
-  failedMessages(
-    parameter0: BigNumberish,
-    parameter1: Arrayish,
-    parameter2: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<string>;
+  failedMessages(parameter0: BigNumberish, parameter1: Arrayish, parameter2: BigNumberish, overrides?: ContractCallOverrides): Promise<string>;
   /**
    * Payable: false
    * Constant: false
@@ -291,11 +277,14 @@ export interface CSMCrossChainRouterL0 {
    * @param srcChainId_ Type: uint16, Indexed: false
    * @param srcAddress_ Type: bytes, Indexed: false
    */
-  forceResumeL0Payload(
-    srcChainId_: BigNumberish,
-    srcAddress_: Arrayish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  forceResumeL0Payload(srcChainId_: BigNumberish, srcAddress_: Arrayish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   */
+  gasForSRCReceiver(overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: true
@@ -304,11 +293,7 @@ export interface CSMCrossChainRouterL0 {
    * @param assetAddress_ Type: address, Indexed: false
    * @param chainId_ Type: uint16, Indexed: false
    */
-  getApprovedAssetId(
-    assetAddress_: string,
-    chainId_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
+  getApprovedAssetId(assetAddress_: string, chainId_: BigNumberish, overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: true
@@ -317,11 +302,7 @@ export interface CSMCrossChainRouterL0 {
    * @param chainId_ Type: uint16, Indexed: false
    * @param assetAddress_ Type: address, Indexed: false
    */
-  getAssetData(
-    chainId_: BigNumberish,
-    assetAddress_: string,
-    overrides?: ContractCallOverrides
-  ): Promise<CrosschainassetResponse>;
+  getAssetData(chainId_: BigNumberish, assetAddress_: string, overrides?: ContractCallOverrides): Promise<CrosschainassetResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -330,11 +311,7 @@ export interface CSMCrossChainRouterL0 {
    * @param chainId_ Type: uint16, Indexed: false
    * @param assetId_ Type: uint256, Indexed: false
    */
-  getAssetData(
-    chainId_: BigNumberish,
-    assetId_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<CrosschainassetResponse>;
+  getAssetData(chainId_: BigNumberish, assetId_: BigNumberish, overrides?: ContractCallOverrides): Promise<CrosschainassetResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -343,11 +320,7 @@ export interface CSMCrossChainRouterL0 {
    * @param chainId_ Type: uint16, Indexed: false
    * @param assetId_ Type: uint256, Indexed: false
    */
-  getCrossChainAssetParams(
-    chainId_: BigNumberish,
-    assetId_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<GetCrossChainAssetParamsResponse>;
+  getCrossChainAssetParams(chainId_: BigNumberish, assetId_: BigNumberish, overrides?: ContractCallOverrides): Promise<GetCrossChainAssetParamsResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -357,25 +330,16 @@ export interface CSMCrossChainRouterL0 {
    * @param srcAddress_ Type: bytes, Indexed: false
    * @param nonce_ Type: uint64, Indexed: false
    */
-  getFailedMessages(
-    chainId_: BigNumberish,
-    srcAddress_: Arrayish,
-    nonce_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<string>;
+  getFailedMessages(chainId_: BigNumberish, srcAddress_: Arrayish, nonce_: BigNumberish, overrides?: ContractCallOverrides): Promise<string>;
   /**
    * Payable: false
    * Constant: true
    * StateMutability: view
    * Type: function
    * @param srcChain_ Type: uint16, Indexed: false
-   * @param nonce_ Type: uint256, Indexed: false
+   * @param id_ Type: bytes, Indexed: false
    */
-  getMessageReceived(
-    srcChain_: BigNumberish,
-    nonce_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<CcreceiveparamsResponse>;
+  getMessageReceived(srcChain_: BigNumberish, id_: Arrayish, overrides?: ContractCallOverrides): Promise<CcreceiveparamsResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -383,10 +347,7 @@ export interface CSMCrossChainRouterL0 {
    * Type: function
    * @param role Type: bytes32, Indexed: false
    */
-  getRoleAdmin(
-    role: Arrayish,
-    overrides?: ContractCallOverrides
-  ): Promise<string>;
+  getRoleAdmin(role: Arrayish, overrides?: ContractCallOverrides): Promise<string>;
   /**
    * Payable: false
    * Constant: false
@@ -395,10 +356,23 @@ export interface CSMCrossChainRouterL0 {
    * @param role Type: bytes32, Indexed: false
    * @param account Type: address, Indexed: false
    */
-  grantRole(
-    role: Arrayish,
-    account: string,
-    overrides?: ContractTransactionOverrides
+  grantRole(role: Arrayish, account: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+  /**
+   * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param srcChainId_ Type: uint16, Indexed: false
+   * @param srcAddressBytes_ Type: bytes, Indexed: false
+   * @param nonce_ Type: uint64, Indexed: false
+   * @param payload_ Type: bytes, Indexed: false
+   */
+  handleReceive(
+    srcChainId_: BigNumberish,
+    srcAddressBytes_: Arrayish,
+    nonce_: BigNumberish,
+    payload_: Arrayish,
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -408,11 +382,7 @@ export interface CSMCrossChainRouterL0 {
    * @param role Type: bytes32, Indexed: false
    * @param account Type: address, Indexed: false
    */
-  hasRole(
-    role: Arrayish,
-    account: string,
-    overrides?: ContractCallOverrides
-  ): Promise<boolean>;
+  hasRole(role: Arrayish, account: string, overrides?: ContractCallOverrides): Promise<boolean>;
   /**
    * Payable: false
    * Constant: true
@@ -421,11 +391,7 @@ export interface CSMCrossChainRouterL0 {
    * @param chainId_ Type: uint16, Indexed: false
    * @param assetAddress_ Type: address, Indexed: false
    */
-  isApprovedAsset(
-    chainId_: BigNumberish,
-    assetAddress_: string,
-    overrides?: ContractCallOverrides
-  ): Promise<boolean>;
+  isApprovedAsset(chainId_: BigNumberish, assetAddress_: string, overrides?: ContractCallOverrides): Promise<boolean>;
   /**
    * Payable: false
    * Constant: true
@@ -434,11 +400,7 @@ export interface CSMCrossChainRouterL0 {
    * @param chainId_ Type: uint16, Indexed: false
    * @param assetId_ Type: uint256, Indexed: false
    */
-  isApprovedAsset(
-    chainId_: BigNumberish,
-    assetId_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<boolean>;
+  isApprovedAsset(chainId_: BigNumberish, assetId_: BigNumberish, overrides?: ContractCallOverrides): Promise<boolean>;
   /**
    * Payable: false
    * Constant: true
@@ -446,10 +408,7 @@ export interface CSMCrossChainRouterL0 {
    * Type: function
    * @param chainId_ Type: uint16, Indexed: false
    */
-  isApprovedRouter(
-    chainId_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<string>;
+  isApprovedRouter(chainId_: BigNumberish, overrides?: ContractCallOverrides): Promise<string>;
   /**
    * Payable: false
    * Constant: true
@@ -472,7 +431,7 @@ export interface CSMCrossChainRouterL0 {
     srcAddressBytes_: Arrayish,
     nonce_: BigNumberish,
     payload_: Arrayish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -489,7 +448,7 @@ export interface CSMCrossChainRouterL0 {
     assetId_: BigNumberish,
     cash_: BigNumberish,
     liability_: BigNumberish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -498,10 +457,7 @@ export interface CSMCrossChainRouterL0 {
    * Type: function
    * @param dstChain_ Type: uint16, Indexed: false
    */
-  nextNonce(
-    dstChain_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
+  nextNonce(dstChain_: BigNumberish, overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: false
@@ -517,7 +473,7 @@ export interface CSMCrossChainRouterL0 {
     srcAddressBytes_: Arrayish,
     nonce_: BigNumberish,
     payload_: Arrayish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -534,11 +490,7 @@ export interface CSMCrossChainRouterL0 {
    * @param role Type: bytes32, Indexed: false
    * @param account Type: address, Indexed: false
    */
-  renounceRole(
-    role: Arrayish,
-    account: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  renounceRole(role: Arrayish, account: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -548,12 +500,7 @@ export interface CSMCrossChainRouterL0 {
    * @param srcAddress_ Type: bytes, Indexed: false
    * @param payload_ Type: bytes, Indexed: false
    */
-  retryL0Payload(
-    srcChainId_: BigNumberish,
-    srcAddress_: Arrayish,
-    payload_: Arrayish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  retryL0Payload(srcChainId_: BigNumberish, srcAddress_: Arrayish, payload_: Arrayish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: true
    * Constant: false
@@ -564,13 +511,7 @@ export interface CSMCrossChainRouterL0 {
    * @param _nonce Type: uint64, Indexed: false
    * @param _payload Type: bytes, Indexed: false
    */
-  retryMessage(
-    _srcChainId: BigNumberish,
-    _srcAddress: Arrayish,
-    _nonce: BigNumberish,
-    _payload: Arrayish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  retryMessage(_srcChainId: BigNumberish, _srcAddress: Arrayish, _nonce: BigNumberish, _payload: Arrayish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -579,11 +520,7 @@ export interface CSMCrossChainRouterL0 {
    * @param role Type: bytes32, Indexed: false
    * @param account Type: address, Indexed: false
    */
-  revokeRole(
-    role: Arrayish,
-    account: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  revokeRole(role: Arrayish, account: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: true
    * Constant: false
@@ -593,14 +530,24 @@ export interface CSMCrossChainRouterL0 {
    * @param dstAddress_ Type: address, Indexed: false
    * @param fee_ Type: uint256, Indexed: false
    * @param payload_ Type: bytes, Indexed: false
+   * @param id_ Type: bytes, Indexed: false
    */
   route(
     dstChain_: BigNumberish,
     dstAddress_: string,
     fee_: BigNumberish,
     payload_: Arrayish,
-    overrides?: ContractTransactionOverrides
+    id_: Arrayish,
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
+  /**
+   * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param _newGas Type: uint256, Indexed: false
+   */
+  setGasForSRCReceiver(_newGas: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -608,10 +555,7 @@ export interface CSMCrossChainRouterL0 {
    * Type: function
    * @param interfaceId Type: bytes4, Indexed: false
    */
-  supportsInterface(
-    interfaceId: Arrayish,
-    overrides?: ContractCallOverrides
-  ): Promise<boolean>;
+  supportsInterface(interfaceId: Arrayish, overrides?: ContractCallOverrides): Promise<boolean>;
   /**
    * Payable: false
    * Constant: false
@@ -620,11 +564,7 @@ export interface CSMCrossChainRouterL0 {
    * @param chainId_ Type: uint16, Indexed: false
    * @param router_ Type: address, Indexed: false
    */
-  toggleApprovedRouters(
-    chainId_: BigNumberish,
-    router_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  toggleApprovedRouters(chainId_: BigNumberish, router_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -644,7 +584,7 @@ export interface CSMCrossChainRouterL0 {
     assetId_: BigNumberish,
     decimals_: BigNumberish,
     add_: boolean,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -654,9 +594,5 @@ export interface CSMCrossChainRouterL0 {
    * @param asset_ Type: address, Indexed: false
    * @param pool_ Type: address, Indexed: false
    */
-  togglePoolPerAssets(
-    asset_: string,
-    pool_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  togglePoolPerAssets(asset_: string, pool_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
 }

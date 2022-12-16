@@ -1,18 +1,7 @@
-import {
-  ContractTransaction,
-  ContractInterface,
-  BytesLike as Arrayish,
-  BigNumber,
-  BigNumberish,
-} from 'ethers';
+import { ContractTransaction, ContractInterface, BytesLike as Arrayish, BigNumber, BigNumberish } from 'ethers';
 import { EthersContractContextV5 } from 'ethereum-abi-types-generator';
 
-export type ContractContext = EthersContractContextV5<
-  Asset,
-  AssetMethodNames,
-  AssetEventsContext,
-  AssetEvents
->;
+export type ContractContext = EthersContractContextV5<Asset, AssetMethodNames, AssetEventsContext, AssetEvents>;
 
 export declare type EventFilter = {
   address?: string;
@@ -168,13 +157,7 @@ export interface Asset {
    * @param symbol_ Type: string, Indexed: false
    * @param aggregateAccount_ Type: address, Indexed: false
    */
-  'new'(
-    underlyingToken_: string,
-    name_: string,
-    symbol_: string,
-    aggregateAccount_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  'new'(underlyingToken_: string, name_: string, symbol_: string, aggregateAccount_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -196,10 +179,7 @@ export interface Asset {
    * Type: function
    * @param amount Type: uint256, Indexed: false
    */
-  addCash(
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  addCash(amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -207,10 +187,7 @@ export interface Asset {
    * Type: function
    * @param amount Type: uint256, Indexed: false
    */
-  addLiability(
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  addLiability(amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -226,11 +203,7 @@ export interface Asset {
    * @param owner Type: address, Indexed: false
    * @param spender Type: address, Indexed: false
    */
-  allowance(
-    owner: string,
-    spender: string,
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
+  allowance(owner: string, spender: string, overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: false
@@ -239,11 +212,7 @@ export interface Asset {
    * @param spender Type: address, Indexed: false
    * @param amount Type: uint256, Indexed: false
    */
-  approve(
-    spender: string,
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  approve(spender: string, amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -251,10 +220,7 @@ export interface Asset {
    * Type: function
    * @param account Type: address, Indexed: false
    */
-  balanceOf(
-    account: string,
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
+  balanceOf(account: string, overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: false
@@ -263,11 +229,7 @@ export interface Asset {
    * @param to Type: address, Indexed: false
    * @param amount Type: uint256, Indexed: false
    */
-  burn(
-    to: string,
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  burn(to: string, amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -290,11 +252,7 @@ export interface Asset {
    * @param spender Type: address, Indexed: false
    * @param subtractedValue Type: uint256, Indexed: false
    */
-  decreaseAllowance(
-    spender: string,
-    subtractedValue: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  decreaseAllowance(spender: string, subtractedValue: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -317,11 +275,7 @@ export interface Asset {
    * @param spender Type: address, Indexed: false
    * @param addedValue Type: uint256, Indexed: false
    */
-  increaseAllowance(
-    spender: string,
-    addedValue: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  increaseAllowance(spender: string, addedValue: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -344,11 +298,7 @@ export interface Asset {
    * @param to Type: address, Indexed: false
    * @param amount Type: uint256, Indexed: false
    */
-  mint(
-    to: string,
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  mint(to: string, amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -377,10 +327,7 @@ export interface Asset {
    * Type: function
    * @param amount Type: uint256, Indexed: false
    */
-  removeCash(
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  removeCash(amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -388,19 +335,14 @@ export interface Asset {
    * Type: function
    * @param amount Type: uint256, Indexed: false
    */
-  removeLiability(
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  removeLiability(amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
    */
-  renounceOwnership(
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  renounceOwnership(overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -408,10 +350,7 @@ export interface Asset {
    * Type: function
    * @param aggregateAccount_ Type: address, Indexed: false
    */
-  setAggregateAccount(
-    aggregateAccount_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setAggregateAccount(aggregateAccount_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -419,10 +358,7 @@ export interface Asset {
    * Type: function
    * @param feeCollector_ Type: address, Indexed: false
    */
-  setFeeCollector(
-    feeCollector_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setFeeCollector(feeCollector_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -430,10 +366,7 @@ export interface Asset {
    * Type: function
    * @param maxSupply_ Type: uint256, Indexed: false
    */
-  setMaxSupply(
-    maxSupply_: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setMaxSupply(maxSupply_: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -441,10 +374,7 @@ export interface Asset {
    * Type: function
    * @param pool_ Type: address, Indexed: false
    */
-  setPool(
-    pool_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setPool(pool_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -467,11 +397,7 @@ export interface Asset {
    * @param to Type: address, Indexed: false
    * @param amount Type: uint256, Indexed: false
    */
-  transfer(
-    to: string,
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  transfer(to: string, amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -481,12 +407,7 @@ export interface Asset {
    * @param to Type: address, Indexed: false
    * @param amount Type: uint256, Indexed: false
    */
-  transferFrom(
-    from: string,
-    to: string,
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  transferFrom(from: string, to: string, amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -494,10 +415,7 @@ export interface Asset {
    * Type: function
    * @param newOwner Type: address, Indexed: false
    */
-  transferOwnership(
-    newOwner: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  transferOwnership(newOwner: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -506,11 +424,7 @@ export interface Asset {
    * @param to Type: address, Indexed: false
    * @param amount Type: uint256, Indexed: false
    */
-  transferUnderlyingToken(
-    to: string,
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  transferUnderlyingToken(to: string, amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true

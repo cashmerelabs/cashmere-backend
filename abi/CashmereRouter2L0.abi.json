@@ -8,10 +8,10 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "bytes32",
+        "indexed": false,
+        "internalType": "bytes",
         "name": "id",
-        "type": "bytes32"
+        "type": "bytes"
       }
     ],
     "name": "NewPendingSwap",
@@ -141,9 +141,9 @@
             "type": "uint16"
           },
           {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
+            "internalType": "bytes",
+            "name": "id",
+            "type": "bytes"
           },
           {
             "internalType": "address",
@@ -183,30 +183,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "nonce",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "dstChainId",
-        "type": "uint16"
-      }
-    ],
-    "name": "getSwapId",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -277,22 +253,17 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bytes",
         "name": "",
-        "type": "bytes32"
+        "type": "bytes"
       }
     ],
     "name": "pendingSwaps",
     "outputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "bytes",
         "name": "id",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "nonce",
-        "type": "uint256"
+        "type": "bytes"
       },
       {
         "internalType": "contract IERC20",
@@ -479,6 +450,32 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IPoolCrossChainL0",
+        "name": "pool_",
+        "type": "address"
+      }
+    ],
+    "name": "updatePool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ICSMCrossChainRouterL0",
+        "name": "router_",
+        "type": "address"
+      }
+    ],
+    "name": "updateRouter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

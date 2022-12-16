@@ -1,18 +1,7 @@
-import {
-  ContractTransaction,
-  ContractInterface,
-  BytesLike as Arrayish,
-  BigNumber,
-  BigNumberish,
-} from 'ethers';
+import { ContractTransaction, ContractInterface, BytesLike as Arrayish, BigNumber, BigNumberish } from 'ethers';
 import { EthersContractContextV5 } from 'ethereum-abi-types-generator';
 
-export type ContractContext = EthersContractContextV5<
-  CashmereRouter2,
-  CashmereRouter2MethodNames,
-  CashmereRouter2EventsContext,
-  CashmereRouter2Events
->;
+export type ContractContext = EthersContractContextV5<CashmereRouter2, CashmereRouter2MethodNames, CashmereRouter2EventsContext, CashmereRouter2Events>;
 
 export declare type EventFilter = {
   address?: string;
@@ -54,11 +43,7 @@ export interface ContractCallOverrides {
    */
   gasLimit?: number;
 }
-export type CashmereRouter2Events =
-  | 'NewPendingSwap'
-  | 'RoleAdminChanged'
-  | 'RoleGranted'
-  | 'RoleRevoked';
+export type CashmereRouter2Events = 'NewPendingSwap' | 'RoleAdminChanged' | 'RoleGranted' | 'RoleRevoked';
 export interface CashmereRouter2EventsContext {
   NewPendingSwap(...parameters: any): EventFilter;
   RoleAdminChanged(...parameters: any): EventFilter;
@@ -138,12 +123,7 @@ export interface CashmereRouter2 {
    * @param ccRouter_ Type: address, Indexed: false
    * @param executionFee_ Type: uint256, Indexed: false
    */
-  'new'(
-    pool_: string,
-    ccRouter_: string,
-    executionFee_: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  'new'(pool_: string, ccRouter_: string, executionFee_: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -177,7 +157,7 @@ export interface CashmereRouter2 {
     router1Inch: string,
     data: Arrayish,
     receiver: string,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -200,10 +180,7 @@ export interface CashmereRouter2 {
    * Type: function
    * @param role Type: bytes32, Indexed: false
    */
-  getRoleAdmin(
-    role: Arrayish,
-    overrides?: ContractCallOverrides
-  ): Promise<string>;
+  getRoleAdmin(role: Arrayish, overrides?: ContractCallOverrides): Promise<string>;
   /**
    * Payable: false
    * Constant: false
@@ -212,11 +189,7 @@ export interface CashmereRouter2 {
    * @param role Type: bytes32, Indexed: false
    * @param account Type: address, Indexed: false
    */
-  grantRole(
-    role: Arrayish,
-    account: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  grantRole(role: Arrayish, account: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -225,11 +198,7 @@ export interface CashmereRouter2 {
    * @param role Type: bytes32, Indexed: false
    * @param account Type: address, Indexed: false
    */
-  hasRole(
-    role: Arrayish,
-    account: string,
-    overrides?: ContractCallOverrides
-  ): Promise<boolean>;
+  hasRole(role: Arrayish, account: string, overrides?: ContractCallOverrides): Promise<boolean>;
   /**
    * Payable: false
    * Constant: true
@@ -237,10 +206,7 @@ export interface CashmereRouter2 {
    * Type: function
    * @param parameter0 Type: uint256, Indexed: false
    */
-  pendingSwaps(
-    parameter0: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<PendingSwapsResponse>;
+  pendingSwaps(parameter0: BigNumberish, overrides?: ContractCallOverrides): Promise<PendingSwapsResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -256,11 +222,7 @@ export interface CashmereRouter2 {
    * @param role Type: bytes32, Indexed: false
    * @param account Type: address, Indexed: false
    */
-  renounceRole(
-    role: Arrayish,
-    account: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  renounceRole(role: Arrayish, account: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -269,11 +231,7 @@ export interface CashmereRouter2 {
    * @param role Type: bytes32, Indexed: false
    * @param account Type: address, Indexed: false
    */
-  revokeRole(
-    role: Arrayish,
-    account: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  revokeRole(role: Arrayish, account: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: true
    * Constant: false
@@ -281,10 +239,7 @@ export interface CashmereRouter2 {
    * Type: function
    * @param params Type: tuple, Indexed: false
    */
-  startSwap(
-    params: StartSwapRequest,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  startSwap(params: StartSwapRequest, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -292,10 +247,7 @@ export interface CashmereRouter2 {
    * Type: function
    * @param interfaceId Type: bytes4, Indexed: false
    */
-  supportsInterface(
-    interfaceId: Arrayish,
-    overrides?: ContractCallOverrides
-  ): Promise<boolean>;
+  supportsInterface(interfaceId: Arrayish, overrides?: ContractCallOverrides): Promise<boolean>;
   /**
    * Payable: false
    * Constant: false
@@ -304,9 +256,5 @@ export interface CashmereRouter2 {
    * @param token Type: address, Indexed: false
    * @param amount Type: uint256, Indexed: false
    */
-  withdrawTokens(
-    token: string,
-    amount: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  withdrawTokens(token: string, amount: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
 }

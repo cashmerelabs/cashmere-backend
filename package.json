@@ -28,7 +28,8 @@
     "router-cc-abi": "abi-types-generator ./abi/CSMCrossChainRouter.abi.json --provider=ethers_v5",
     "router-cc-l0-abi": "abi-types-generator ./abi/CSMCrossChainRouterL0.abi.json --provider=ethers_v5",
     "oracle-abi": "abi-types-generator ./abi/OffchainOracle.abi.json --provider=ethers_v5",
-    "abi": "yarn asset-abi && yarn pool-abi && yarn pool-cc-abi && yarn router-abi && yarn router-cc-abi && yarn pool-cc-l0-abi && yarn router-cc-l0-abi && yarn router-l0-abi && yarn oracle-abi",
+    "erc20-abi": "abi-types-generator ./abi/ERC20.abi.json --provider=ethers_v5",
+    "abi": "yarn asset-abi && yarn pool-abi && yarn pool-cc-abi && yarn router-abi && yarn router-cc-abi && yarn pool-cc-l0-abi && yarn router-cc-l0-abi && yarn router-l0-abi && yarn oracle-abi && yarn erc20-abi",
     "manage": "ts-node -r tsconfig-paths/register src/manage.ts"
   },
   "dependencies": {

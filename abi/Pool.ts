@@ -1,18 +1,7 @@
-import {
-  ContractTransaction,
-  ContractInterface,
-  BytesLike as Arrayish,
-  BigNumber,
-  BigNumberish,
-} from 'ethers';
+import { ContractTransaction, ContractInterface, BytesLike as Arrayish, BigNumber, BigNumberish } from 'ethers';
 import { EthersContractContextV5 } from 'ethereum-abi-types-generator';
 
-export type ContractContext = EthersContractContextV5<
-  Pool,
-  PoolMethodNames,
-  PoolEventsContext,
-  PoolEvents
->;
+export type ContractContext = EthersContractContextV5<Pool, PoolMethodNames, PoolEventsContext, PoolEvents>;
 
 export declare type EventFilter = {
   address?: string;
@@ -116,10 +105,7 @@ export interface Pool {
    * Type: function
    * @param key Type: address, Indexed: false
    */
-  containsAsset(
-    key: string,
-    overrides?: ContractCallOverrides
-  ): Promise<boolean>;
+  containsAsset(key: string, overrides?: ContractCallOverrides): Promise<boolean>;
   /**
    * Payable: false
    * Constant: false
@@ -130,22 +116,14 @@ export interface Pool {
    * @param to Type: address, Indexed: false
    * @param deadline Type: uint256, Indexed: false
    */
-  deposit(
-    token: string,
-    amount: BigNumberish,
-    to: string,
-    deadline: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  deposit(token: string, amount: BigNumberish, to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
    * StateMutability: view
    * Type: function
    */
-  getHighestAndLowestCompRatioAssets(
-    overrides?: ContractCallOverrides
-  ): Promise<GetHighestAndLowestCompRatioAssetsResponse>;
+  getHighestAndLowestCompRatioAssets(overrides?: ContractCallOverrides): Promise<GetHighestAndLowestCompRatioAssetsResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -172,7 +150,7 @@ export interface Pool {
     minimumToAmount: BigNumberish,
     to: string,
     deadline: BigNumberish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -182,11 +160,7 @@ export interface Pool {
    * @param initialToken Type: address, Indexed: false
    * @param wantedToken Type: address, Indexed: false
    */
-  quoteMaxInitialAssetWithdrawable(
-    initialToken: string,
-    wantedToken: string,
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
+  quoteMaxInitialAssetWithdrawable(initialToken: string, wantedToken: string, overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: true
@@ -196,12 +170,7 @@ export interface Pool {
    * @param toToken Type: address, Indexed: false
    * @param fromAmount Type: uint256, Indexed: false
    */
-  quotePotentialSwap(
-    fromToken: string,
-    toToken: string,
-    fromAmount: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<QuotePotentialSwapResponse>;
+  quotePotentialSwap(fromToken: string, toToken: string, fromAmount: BigNumberish, overrides?: ContractCallOverrides): Promise<QuotePotentialSwapResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -210,11 +179,7 @@ export interface Pool {
    * @param token Type: address, Indexed: false
    * @param liquidity Type: uint256, Indexed: false
    */
-  quotePotentialWithdraw(
-    token: string,
-    liquidity: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<QuotePotentialWithdrawResponse>;
+  quotePotentialWithdraw(token: string, liquidity: BigNumberish, overrides?: ContractCallOverrides): Promise<QuotePotentialWithdrawResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -228,7 +193,7 @@ export interface Pool {
     initialToken: string,
     wantedToken: string,
     liquidity: BigNumberish,
-    overrides?: ContractCallOverrides
+    overrides?: ContractCallOverrides,
   ): Promise<QuotePotentialWithdrawFromOtherAssetResponse>;
   /**
    * Payable: false
@@ -249,7 +214,7 @@ export interface Pool {
     minimumToAmount: BigNumberish,
     to: string,
     deadline: BigNumberish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -268,7 +233,7 @@ export interface Pool {
     minimumAmount: BigNumberish,
     to: string,
     deadline: BigNumberish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -289,6 +254,6 @@ export interface Pool {
     minimumAmount: BigNumberish,
     to: string,
     deadline: BigNumberish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
 }

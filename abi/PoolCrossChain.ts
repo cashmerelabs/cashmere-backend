@@ -1,18 +1,7 @@
-import {
-  ContractTransaction,
-  ContractInterface,
-  BytesLike as Arrayish,
-  BigNumber,
-  BigNumberish,
-} from 'ethers';
+import { ContractTransaction, ContractInterface, BytesLike as Arrayish, BigNumber, BigNumberish } from 'ethers';
 import { EthersContractContextV5 } from 'ethereum-abi-types-generator';
 
-export type ContractContext = EthersContractContextV5<
-  PoolCrossChain,
-  PoolCrossChainMethodNames,
-  PoolCrossChainEventsContext,
-  PoolCrossChainEvents
->;
+export type ContractContext = EthersContractContextV5<PoolCrossChain, PoolCrossChainMethodNames, PoolCrossChainEventsContext, PoolCrossChainEvents>;
 
 export declare type EventFilter = {
   address?: string;
@@ -95,12 +84,10 @@ export type PoolCrossChainMethodNames =
   | 'assetOf'
   | 'c1'
   | 'chainId'
-  | 'containsAsset'
   | 'deposit'
   | 'dev'
   | 'feeCollector'
   | 'getEquilibriumCoverageRatio'
-  | 'getNoncePerChain'
   | 'getTokenAddresses'
   | 'haircutRate'
   | 'maxPriceDeviation'
@@ -145,7 +132,6 @@ export interface CrossChainSwapEventEmittedResponse {
   chainId: BigNumberish;
   fromAmount: BigNumberish;
   toAmount: BigNumberish;
-  nonce: BigNumberish;
 }
 export interface DepositEventEmittedResponse {
   sender: string;
@@ -240,14 +226,34 @@ export interface QuotePotentialWithdrawFromOtherAssetResponse {
   1: BigNumber;
   length: 2;
 }
+export interface ReceiveSwapCrossChainRequest {
+  sender: string;
+  srcChainId: BigNumberish;
+  srcAsset: string;
+  dstAsset: string;
+  amount: BigNumberish;
+  haircut: BigNumberish;
+  signature: Arrayish;
+  id: Arrayish;
+}
+export interface SwapCrossChainRequest {
+  fromToken: string;
+  fromAmount: BigNumberish;
+  minimumToAmount: BigNumberish;
+  destinationAsset: BigNumberish;
+  destinationChain: BigNumberish;
+  deadline: BigNumberish;
+  signature: Arrayish;
+}
 export interface PoolCrossChain {
   /**
    * Payable: false
    * Constant: false
    * StateMutability: nonpayable
    * Type: constructor
+   * @param chainId_ Type: uint16, Indexed: false
    */
-  'new'(overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
+  'new'(chainId_: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -256,11 +262,7 @@ export interface PoolCrossChain {
    * @param token Type: address, Indexed: false
    * @param asset Type: address, Indexed: false
    */
-  addAsset(
-    token: string,
-    asset: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  addAsset(token: string, asset: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -282,18 +284,7 @@ export interface PoolCrossChain {
    * StateMutability: view
    * Type: function
    */
-  chainId(overrides?: ContractCallOverrides): Promise<BigNumber>;
-  /**
-   * Payable: false
-   * Constant: true
-   * StateMutability: view
-   * Type: function
-   * @param key Type: address, Indexed: false
-   */
-  containsAsset(
-    key: string,
-    overrides?: ContractCallOverrides
-  ): Promise<boolean>;
+  chainId(overrides?: ContractCallOverrides): Promise<number>;
   /**
    * Payable: false
    * Constant: false
@@ -304,13 +295,7 @@ export interface PoolCrossChain {
    * @param to Type: address, Indexed: false
    * @param deadline Type: uint256, Indexed: false
    */
-  deposit(
-    token: string,
-    amount: BigNumberish,
-    to: string,
-    deadline: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  deposit(token: string, amount: BigNumberish, to: string, deadline: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -331,20 +316,7 @@ export interface PoolCrossChain {
    * StateMutability: view
    * Type: function
    */
-  getEquilibriumCoverageRatio(
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
-  /**
-   * Payable: false
-   * Constant: true
-   * StateMutability: view
-   * Type: function
-   * @param chainId_ Type: uint256, Indexed: false
-   */
-  getNoncePerChain(
-    chainId_: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
+  getEquilibriumCoverageRatio(overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: true
@@ -402,11 +374,7 @@ export interface PoolCrossChain {
    * @param initialToken Type: address, Indexed: false
    * @param wantedToken Type: address, Indexed: false
    */
-  quoteMaxInitialAssetWithdrawable(
-    initialToken: string,
-    wantedToken: string,
-    overrides?: ContractCallOverrides
-  ): Promise<BigNumber>;
+  quoteMaxInitialAssetWithdrawable(initialToken: string, wantedToken: string, overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: true
@@ -416,7 +384,7 @@ export interface PoolCrossChain {
    * @param toToken Type: address, Indexed: false
    * @param fromAmount Type: uint256, Indexed: false
    * @param destinationAsset Type: uint256, Indexed: false
-   * @param destinationChain Type: uint256, Indexed: false
+   * @param destinationChain Type: uint16, Indexed: false
    */
   quotePotentialSwap(
     fromToken: string,
@@ -424,7 +392,7 @@ export interface PoolCrossChain {
     fromAmount: BigNumberish,
     destinationAsset: BigNumberish,
     destinationChain: BigNumberish,
-    overrides?: ContractCallOverrides
+    overrides?: ContractCallOverrides,
   ): Promise<QuotePotentialSwapResponse>;
   /**
    * Payable: false
@@ -434,11 +402,7 @@ export interface PoolCrossChain {
    * @param token Type: address, Indexed: false
    * @param liquidity Type: uint256, Indexed: false
    */
-  quotePotentialWithdraw(
-    token: string,
-    liquidity: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<QuotePotentialWithdrawResponse>;
+  quotePotentialWithdraw(token: string, liquidity: BigNumberish, overrides?: ContractCallOverrides): Promise<QuotePotentialWithdrawResponse>;
   /**
    * Payable: false
    * Constant: true
@@ -452,31 +416,16 @@ export interface PoolCrossChain {
     initialToken: string,
     wantedToken: string,
     liquidity: BigNumberish,
-    overrides?: ContractCallOverrides
+    overrides?: ContractCallOverrides,
   ): Promise<QuotePotentialWithdrawFromOtherAssetResponse>;
   /**
    * Payable: false
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
-   * @param sender_ Type: address, Indexed: false
-   * @param srcChainId_ Type: uint256, Indexed: false
-   * @param srcAsset_ Type: address, Indexed: false
-   * @param dstAsset_ Type: address, Indexed: false
-   * @param amount_ Type: uint256, Indexed: false
-   * @param haircut_ Type: uint256, Indexed: false
-   * @param nonce_ Type: uint256, Indexed: false
+   * @param params Type: tuple, Indexed: false
    */
-  receiveSwapCrossChain(
-    sender_: string,
-    srcChainId_: BigNumberish,
-    srcAsset_: string,
-    dstAsset_: string,
-    amount_: BigNumberish,
-    haircut_: BigNumberish,
-    nonce_: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  receiveSwapCrossChain(params: ReceiveSwapCrossChainRequest, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -484,10 +433,7 @@ export interface PoolCrossChain {
    * Type: function
    * @param token Type: address, Indexed: false
    */
-  recoverUserFunds(
-    token: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  recoverUserFunds(token: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -495,19 +441,14 @@ export interface PoolCrossChain {
    * Type: function
    * @param key Type: address, Indexed: false
    */
-  removeAsset(
-    key: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  removeAsset(key: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
    */
-  renounceOwnership(
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  renounceOwnership(overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -529,10 +470,7 @@ export interface PoolCrossChain {
    * Type: function
    * @param dev_ Type: address, Indexed: false
    */
-  setDev(
-    dev_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setDev(dev_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -540,10 +478,7 @@ export interface PoolCrossChain {
    * Type: function
    * @param feeCollector_ Type: address, Indexed: false
    */
-  setFeeCollector(
-    feeCollector_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setFeeCollector(feeCollector_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -551,10 +486,7 @@ export interface PoolCrossChain {
    * Type: function
    * @param haircutRate_ Type: uint256, Indexed: false
    */
-  setHaircutRate(
-    haircutRate_: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setHaircutRate(haircutRate_: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -562,10 +494,7 @@ export interface PoolCrossChain {
    * Type: function
    * @param maxPriceDeviation_ Type: uint256, Indexed: false
    */
-  setMaxPriceDeviation(
-    maxPriceDeviation_: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setMaxPriceDeviation(maxPriceDeviation_: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -573,10 +502,7 @@ export interface PoolCrossChain {
    * Type: function
    * @param priceOracle_ Type: address, Indexed: false
    */
-  setPriceOracle(
-    priceOracle_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setPriceOracle(priceOracle_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -584,10 +510,7 @@ export interface PoolCrossChain {
    * Type: function
    * @param retentionRatio_ Type: uint256, Indexed: false
    */
-  setRetentionRatio(
-    retentionRatio_: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setRetentionRatio(retentionRatio_: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -595,10 +518,7 @@ export interface PoolCrossChain {
    * Type: function
    * @param router_ Type: address, Indexed: false
    */
-  setRouter(
-    router_: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setRouter(router_: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -609,13 +529,7 @@ export interface PoolCrossChain {
    * @param c1_ Type: uint256, Indexed: false
    * @param xThreshold_ Type: uint256, Indexed: false
    */
-  setSlippageParams(
-    k_: BigNumberish,
-    n_: BigNumberish,
-    c1_: BigNumberish,
-    xThreshold_: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  setSlippageParams(k_: BigNumberish, n_: BigNumberish, c1_: BigNumberish, xThreshold_: BigNumberish, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -635,24 +549,9 @@ export interface PoolCrossChain {
    * Constant: false
    * StateMutability: payable
    * Type: function
-   * @param fromToken_ Type: address, Indexed: false
-   * @param fromAmount_ Type: uint256, Indexed: false
-   * @param minimumToAmount_ Type: uint256, Indexed: false
-   * @param dstAssetId_ Type: uint256, Indexed: false
-   * @param dstChain_ Type: uint256, Indexed: false
-   * @param deadline_ Type: uint256, Indexed: false
-   * @param executionFee_ Type: uint256, Indexed: false
+   * @param requestParams_ Type: tuple, Indexed: false
    */
-  swapCrossChain(
-    fromToken_: string,
-    fromAmount_: BigNumberish,
-    minimumToAmount_: BigNumberish,
-    dstAssetId_: BigNumberish,
-    dstChain_: BigNumberish,
-    deadline_: BigNumberish,
-    executionFee_: BigNumberish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  swapCrossChain(requestParams_: SwapCrossChainRequest, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -660,19 +559,14 @@ export interface PoolCrossChain {
    * Type: function
    * @param newOwner Type: address, Indexed: false
    */
-  transferOwnership(
-    newOwner: string,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  transferOwnership(newOwner: string, overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
    */
-  unpause(
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
+  unpause(overrides?: ContractTransactionOverrides): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: false
@@ -690,7 +584,7 @@ export interface PoolCrossChain {
     minimumAmount: BigNumberish,
     to: string,
     deadline: BigNumberish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
@@ -711,7 +605,7 @@ export interface PoolCrossChain {
     minimumAmount: BigNumberish,
     to: string,
     deadline: BigNumberish,
-    overrides?: ContractTransactionOverrides
+    overrides?: ContractTransactionOverrides,
   ): Promise<ContractTransaction>;
   /**
    * Payable: false

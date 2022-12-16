@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 import { IsEthereumAddress, IsIn, IsNumberString } from 'class-validator';
 import axios from 'axios';
 import { constants, ethers } from 'ethers';
-import { ChainID, CHAIN_IDS, networks } from './app.worker';
+import { ChainID, CHAIN_IDS, networks, Network } from './app.worker';
 import Big from 'big.js';
 
 const ONE_INCH_SLIPPAGE = 10;
@@ -48,6 +48,8 @@ interface SwapEstimateResponse {
   // hgsAmount: string;
   dstAmount: string;
   minReceivedDst: string;
+  fee: string;
+  priceImpact: string;
 }
 
 const usdtBroken = true;
@@ -57,8 +59,8 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   async getParams({ fromChain, fromToken, toChain, toToken }) {
-    const fromNetwork = networks[fromChain];
-    const toNetwork = networks[toChain];
+    const fromNetwork: Network = networks[fromChain];
+    const toNetwork: Network = networks[toChain];
     const pool = fromNetwork.intraChainPool;
     const poolCC = fromNetwork.l0CrossChainPool;
     const routerCC = fromNetwork.l0CrossChainRouter;
@@ -125,7 +127,7 @@ export class AppController {
           toToken,
         });
       let oneInchData, oneInchRouter, toTokenAmount;
-      if (needSrc1InchSwap) {
+      if (!needSrc1InchSwap) {
         oneInchData = '0x00';
         oneInchRouter = constants.AddressZero;
         toTokenAmount = fromAmount;
@@ -148,16 +150,15 @@ export class AppController {
       console.log([lwsTokenAddress, hgsTokenAddressDest, toTokenAmount, hgsAssetId, toNetwork.l0ChainId]);
       const { potentialOutcome, haircut } = await poolCC.quotePotentialSwap(lwsTokenAddress, hgsTokenAddressDest, toTokenAmount, hgsAssetId, toNetwork.l0ChainId);
       const estimatePayload = ethers.utils.defaultAbiCoder.encode(
-        ['address', 'uint16', 'uint16', 'address', 'address', 'uint256', 'uint256', 'bytes'],
+        ['address', 'address', 'address', 'uint256', 'uint256', 'bytes', 'bytes'],
         [
           swapRouter.address,
-          fromNetwork.l0ChainId,
-          toNetwork.l0ChainId,
           lwsAsset.address,
           hgsAssetAddressDest,
           potentialOutcome,
           haircut,
           '0x' + '00'.repeat(32 + 32 + 32 + 32 + 32 + 32 + (32 * 2 + 96)), // uint256, address, address, address, uint256, address, (signature)
+          '0x' + '00'.repeat(32 + 32 + 32), // address, uint256, uint256
         ],
       );
       const value = await routerCC.estimateFee(toNetwork.l0ChainId, estimatePayload);
@@ -176,7 +177,7 @@ export class AppController {
           hgsEstimate: potentialOutcome.toString(),
         },
         to: swapRouter.address,
-        value,
+        value: value.toString(),
       } as SwapParamsResponse;
       // return {
       //   data: swapData,
@@ -202,7 +203,7 @@ export class AppController {
     { fromChain, fromToken, fromAmount, toChain, toToken }: GetSwapParamsQueryDto,
   ): Promise<SwapEstimateResponse> {
     let lwsAmount, dstAmount, minReceivedLws, minReceivedDst;
-    const { lwsTokenAddress, needSrc1InchSwap, needDst1InchSwap, poolCC, hgsTokenAddressDest, hgsAssetId, toNetwork } = await this.getParams({
+    const { lwsTokenAddress, needSrc1InchSwap, needDst1InchSwap, poolCC, hgsTokenAddressDest, hgsAssetId, toNetwork, fromNetwork } = await this.getParams({
       fromChain,
       fromToken,
       toChain,
@@ -216,6 +217,7 @@ export class AppController {
           amount: fromAmount,
         },
       });
+      // console.log(r.data);
       lwsAmount = r.data.toTokenAmount;
       minReceivedLws = new Big(lwsAmount)
         .mul(100 - ONE_INCH_SLIPPAGE)
@@ -224,7 +226,11 @@ export class AppController {
     } else {
       minReceivedLws = lwsAmount = fromAmount;
     }
-    const [{ potentialOutcome }, { potentialOutcome: minPotentialOutcome }] = await Promise.all([
+    console.log(
+      [lwsTokenAddress, hgsTokenAddressDest, lwsAmount, hgsAssetId, toNetwork.l0ChainId],
+      [lwsTokenAddress, hgsTokenAddressDest, minReceivedLws, hgsAssetId, toNetwork.l0ChainId],
+    );
+    const [{ potentialOutcome, haircut }, { potentialOutcome: minPotentialOutcome }] = await Promise.all([
       poolCC.quotePotentialSwap(lwsTokenAddress, hgsTokenAddressDest, lwsAmount, hgsAssetId, toNetwork.l0ChainId),
       poolCC.quotePotentialSwap(lwsTokenAddress, hgsTokenAddressDest, minReceivedLws, hgsAssetId, toNetwork.l0ChainId),
     ]);
@@ -240,7 +246,7 @@ export class AppController {
               amount: hgsAmount,
             },
           });
-          console.log(r.data);
+          // console.log(r.data);
           dstAmount = r.data.toTokenAmount;
         })(),
         (async () => {
@@ -275,17 +281,38 @@ export class AppController {
       minReceivedHgs,
       dstAmount,
       minReceivedDst,
+      lwsTokenAddress,
+      hgsTokenAddressDest,
+      potentialOutcome: potentialOutcome.toString(),
     });
+    let priceImpact;
+    {
+      const [srcPriceR, dstPriceR] = await Promise.all([
+        fromToken === fromNetwork.usdtTokenAddress ? '1000000' : fromNetwork.l0Oracle.getRate(fromToken, fromNetwork.usdtTokenAddress, true),
+        toToken === toNetwork.usdtTokenAddress ? '1000000' : toNetwork.l0Oracle.getRate(toToken, toNetwork.usdtTokenAddress, true),
+      ]);
+      const srcPrice = new Big(srcPriceR.toString()).div('1e6');
+      const dstPrice = new Big(dstPriceR.toString()).div('1e6');
+      const [srcDecimals, dstDecimals] = await Promise.all([fromNetwork.tokenContract(fromToken).decimals(), toNetwork.tokenContract(toToken).decimals()]);
+      const dstAmountInUSD = dstPrice.mul(dstAmount).div(`1e${dstDecimals}`);
+      const srcAmountInUSD = srcPrice.mul(fromAmount).div(`1e${srcDecimals}`);
+      console.log(`${srcAmountInUSD}, ${dstAmountInUSD}`);
+      priceImpact = dstAmountInUSD.div(srcAmountInUSD).sub(1).mul(100).toFixed(2);
+    }
 
-    const oracle = await networks[fromChain].l0Oracle;
-    // await oracle.getRateToEth()
+    console.log(`haircut ${haircut}`);
+    const hgsToken = toNetwork.tokenContract(hgsTokenAddressDest);
+    const hgsSymbol = await hgsToken.symbol();
+    const hgsDecimals = await hgsToken.decimals();
+    const haircutDisp = new Big(haircut.toString()).div(`1e${hgsDecimals}`).toString();
 
     return {
       // lwsAmount,
       // hgsAmount,
       dstAmount,
       minReceivedDst,
-      // priceImpact: new Big(dstAmount).div(await )
+      fee: `${await fromNetwork.swapFeeL0(toNetwork)} ${fromNetwork.nativeSymbol} + ${haircutDisp} ${hgsSymbol}`,
+      priceImpact,
     };
   }
 }

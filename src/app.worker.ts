@@ -10,10 +10,13 @@ import * as CashmereRouter2L0ABI from '../abi/CashmereRouter2L0.abi.json';
 import { ContractContext as CashmereRouter2L0Context } from '../abi/CashmereRouter2L0';
 import * as OffchainOracleABI from '../abi/OffchainOracle.abi.json';
 import { ContractContext as OffchainOracleContext } from '../abi/OffchainOracle';
+import * as ERC20ABI from '../abi/ERC20.abi.json';
+import { ContractContext as ERC20Context } from '../abi/ERC20';
 import { Log } from 'ethereum-abi-types-generator';
 import axios from 'axios';
 import * as AssetABI from '../abi/Asset.abi.json';
 import { ContractContext as AssetContext } from '../abi/Asset';
+import Big from 'big.js';
 
 export const ETHEREUM_CHAIN_ID = '1';
 export const POLYGON_CHAIN_ID = '137';
@@ -34,7 +37,6 @@ export const CHAIN_IDS = [ETHEREUM_CHAIN_ID, POLYGON_CHAIN_ID, ARBITRUM_CHAIN_ID
 
 interface SwapEntry {
   id: string;
-  nonce: string;
   txid: string;
   lwsToken: string;
   hgsAmount: string;
@@ -49,7 +51,7 @@ interface SwapEntry {
   srcChainId: string;
 }
 
-class Network {
+export class Network {
   ethers: providers.JsonRpcProvider;
   l0CrossChainPool: PoolCrossChainL0Context;
   l0CrossChainRouter: CSMRouterL0Context;
@@ -66,6 +68,8 @@ class Network {
     public readonly l0AggregatorRouterAddress: string,
     public readonly l0OracleAddress: string,
     public readonly l0ChainId: string,
+    public readonly nativeSymbol: string,
+    public readonly usdtTokenAddress: string,
   ) {
     this.ethers = new providers.JsonRpcProvider(rpcUrl);
     this.l0CrossChainPool = new ethers.Contract(this.l0CrossChainPoolAddress, PoolCrossChainL0ABI, this.ethers) as unknown as PoolCrossChainL0Context;
@@ -77,6 +81,26 @@ class Network {
 
   assetContract(address: string) {
     return new ethers.Contract(address, AssetABI, this.ethers) as unknown as AssetContext;
+  }
+
+  tokenContract(address: string) {
+    return new ethers.Contract(address, ERC20ABI, this.ethers) as unknown as ERC20Context;
+  }
+
+  async swapFeeL0(toNetwork: Network) {
+    const estimatePayload = ethers.utils.defaultAbiCoder.encode(
+      ['address', 'address', 'address', 'uint256', 'uint256', 'bytes', 'bytes'],
+      [
+        constants.AddressZero,
+        constants.AddressZero,
+        constants.AddressZero,
+        0,
+        0,
+        '0x' + '00'.repeat(32 + 32 + 32 + 32 + 32 + 32 + (32 * 2 + 96)), // uint256, address, address, address, uint256, address, (signature)
+        '0x' + '00'.repeat(32 + 32 + 32), // address, uint256, uint256
+      ],
+    );
+    return new Big((await this.l0CrossChainRouter.estimateFee(toNetwork.l0ChainId, estimatePayload)).toString()).div('1e18').toString();
   }
 }
 
@@ -90,6 +114,8 @@ export const networks = {
     '0xF8e8fcC6eCC323fae58E18CFf9065dac65AAeC93',
     '0x07D91f5fb9Bf7798734C3f606dB065549F6893bb',
     '101',
+    'ETH',
+    '0xdAC17F958D2ee523a2206206994597C13D831ec7',
   ),
   [POLYGON_CHAIN_ID]: new Network(
     POLYGON_CHAIN_ID,
@@ -100,16 +126,20 @@ export const networks = {
     '0xF8e8fcC6eCC323fae58E18CFf9065dac65AAeC93',
     '0x7F069df72b7A39bCE9806e3AfaF579E54D8CF2b9',
     '109',
+    'MATIC',
+    '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
   ),
   [ARBITRUM_CHAIN_ID]: new Network(
     ARBITRUM_CHAIN_ID,
     'https://arb-mainnet.g.alchemy.com/v2/zpfIgef6IVAMeTcaS5v9PLZFp1aiGDi1',
-    '0x89c2fCe0Af62Dce683830fD3A1C3f56EBCfCE08D',
-    '0x1544223c90b955D0764da4Bd147c2Aa0151458C5',
+    '0x922b81Deaf5ad8eE133766A0B111B62CB5Ee8813',
+    '0xB489570084e56d99108281Eff0cBB15771BDeEc5',
     '0xb0520bd64fe1496864374D21DE27B291Ecd16972',
-    '0x6Ad76f1d0eb23FBa3Ed9EC86bb6EED253948e449',
+    '0x3FB40Dc67A5502a1780271928E3648CDa72CFc79',
     '0x735247fb0a604c0adC6cab38ACE16D0DbA31295F',
     '110',
+    'AETH',
+    '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
   ),
   [AVALANCHE_CHAIN_ID]: new Network(
     AVALANCHE_CHAIN_ID,
@@ -120,16 +150,20 @@ export const networks = {
     '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '0xBd0c7AaF0bF082712EbE919a9dD94b2d978f79A9',
     '106',
+    'AVAX',
+    '0xc7198437980c041c805A1EDcbA50c1Ce5db95118',
   ),
   [BSC_CHAIN_ID]: new Network(
     BSC_CHAIN_ID,
     'https://nd-920-310-122.p2pify.com/2ec0aa8517fbb2563b494d7a22ceb61f',
-    '0x89D26b3E199E7b0d89a587a1709579Cf5ece3d64',
-    '0x9243C47dAeBAA1b0a881Dd287467Bd215A8726b3',
+    '0x2D3935Ea84186297837401cf9B0F799dcA57E7Ee',
+    '0x7790e237671bdeB08C41f965a940c9E593Fb1d99',
     '0x3782d8FD91EC44d9364538d163b2DC8E138501CE',
-    '0x6Ad76f1d0eb23FBa3Ed9EC86bb6EED253948e449',
+    '0x3FB40Dc67A5502a1780271928E3648CDa72CFc79',
     '0xfbD61B037C325b959c0F6A7e69D8f37770C2c550',
     '102',
+    'BNB',
+    '0x55d398326f99059fF775485246999027B3197955',
   ),
   [OPTIMISM_CHAIN_ID]: new Network(
     OPTIMISM_CHAIN_ID,
@@ -140,6 +174,8 @@ export const networks = {
     '0xF8e8fcC6eCC323fae58E18CFf9065dac65AAeC93',
     '0x11DEE30E710B8d4a8630392781Cc3c0046365d4c',
     '111',
+    'OETH',
+    '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
   ),
   [FANTOM_CHAIN_ID]: new Network(
     FANTOM_CHAIN_ID,
@@ -150,6 +186,8 @@ export const networks = {
     '0xf3Cd02e2F31515Bfaa00b9d2C20173e25c4c4308',
     '0xE8E598A1041b6fDB13999D275a202847D9b654ca',
     '112',
+    'FTM',
+    '0x049d68029688eAbF473097a2fC38ef61633A3C7A',
   ),
 };
 
@@ -160,11 +198,11 @@ Object.entries(networks).forEach(([chainId, network]) => {
 
 const redis = new Redis();
 const redisKey = (name: string) => `csm-backend-v2:${name}`;
-const entryKey = (srcChainId: any, dstChainId: any, nonce: any) => redisKey(`out-${srcChainId}-${dstChainId}-${nonce}`);
+const entryKey = (srcChainId: any, id: any) => `out-${srcChainId}-${id}`;
 
 const processIncomingTx = async (swapData: SwapEntry, network: Network, pk: string) => {
   if (swapData.processed) {
-    console.error(`pdst ${swapData.nonce} already processed (${swapData.storageKey})`);
+    console.error(`incoming swap ${swapData.id} already processed (${swapData.storageKey})`);
     return;
   }
   let oneInchRouter, oneInchData;
@@ -188,13 +226,13 @@ const processIncomingTx = async (swapData: SwapEntry, network: Network, pk: stri
   const wallet = new Wallet(pk, network.ethers);
   const params = {
     srcChainId: swapData.srcChainId,
-    nonce: swapData.nonce,
+    id: swapData.id,
     router1Inch: oneInchRouter,
     data: oneInchData,
   };
   console.log(params);
   const receipt2 = await network.l0AggregatorRouter.connect(wallet).continueSwap(params, { gasPrice: await network.ethers.getGasPrice() });
-  console.log(`swap to ${swapData.nonce} executed`, receipt2.hash);
+  console.log(`swap to ${swapData.id} executed`, receipt2.hash);
   swapData.processed = true;
   await redis.set(swapData.storageKey, JSON.stringify(swapData));
 };
@@ -203,24 +241,19 @@ const l0LogHandler = (network: Network, pk: string) => {
   const ethers = network.ethers;
 
   return async (sender, srcAsset, dstAsset, dstChainId, fromAmount, toAmount, log: Log) => {
-    const l0MessageReceivedTopic = '0xb31a279832335b41f70d77f2663ce317c7e04b0673d9d7f2982f8e3b451801fd';
-    const l0SwapStartedTopic = '0x7b0a3fab2034d26e1d5ffb5ba60ca0c0121664bae47dcaf0b742413274615167';
+    const l0MessageReceivedTopic = '0x345480db84874f8bd56702698e9d0eb129c682cae1ce540fbae1a196f10d2d75';
+    const l0SwapStartedTopic = '0x725de68f01cd89eeb18c2649ce43b252e720977a5b52147d3033b652f1d0a29e';
     const receipt = await ethers.getTransactionReceipt(log.transactionHash);
     const l0MessageReceivedLog = receipt.logs.filter((l) => l.topics[0] === l0MessageReceivedTopic)[0];
 
     if (!l0MessageReceivedLog) {
       // outgoing tx
-      const swapId = receipt.logs.filter((l) => l.topics[0] === l0SwapStartedTopic)[0]?.topics[1] || '0x0000000000000000000000000000000000000000000000000000000000000000';
+      const rawData = receipt.logs.filter((l) => l.topics[0] === l0SwapStartedTopic)[0]?.data || '0x00';
+      const swapId = utils.defaultAbiCoder.decode(['bytes'], rawData)[0];
       const eventData = await network.l0AggregatorRouter.pendingSwaps(swapId);
-      if (eventData.nonce.eq(0)) {
-        console.error(`psrc ${swapId} discarded`);
-        return;
-      }
-      const nonce = eventData.nonce.sub(3).toString();
-      const storageKey = entryKey(network.l0ChainId, eventData.dstChainId.toString(), nonce);
+      const storageKey = redisKey(entryKey(network.l0ChainId, swapId));
       const entry: SwapEntry = {
-        id: eventData.id.toString(),
-        nonce,
+        id: swapId,
         txid: log.transactionHash,
         lwsToken: eventData.lwsToken,
         hgsAmount: eventData.hgsAmount.toString(),
@@ -238,21 +271,21 @@ const l0LogHandler = (network: Network, pk: string) => {
         console.error(`${storageKey} already exists`);
       } else {
         await redis.set(storageKey, JSON.stringify(entry));
-        console.error(`swap from ${eventData.nonce.toString()}`, storageKey, entry);
+        console.error(`outgoing swap`, storageKey, entry);
       }
-      await redis.sadd(redisKey(`pending-out-${dstChainId}`), entryKey(network.l0ChainId, dstChainId, nonce));
+      await redis.sadd(redisKey(`pending-out-${dstChainId}`), redisKey(entryKey(network.l0ChainId, swapId)));
     } else {
       // incoming tx
-      const l0MessageReceivedTypes = ['address', 'uint16', 'address', 'address', 'uint256', 'uint256', 'uint256'];
+      const l0MessageReceivedTypes = ['address', 'uint16', 'address', 'address', 'bytes', 'uint256', 'uint256', 'bytes'];
       const eventData = utils.defaultAbiCoder.decode(l0MessageReceivedTypes, l0MessageReceivedLog.data);
-      const nonce = eventData[4].toString();
+      const id = eventData[4].toString();
       const srcChainId = eventData[1].toString();
-      const storageKey = entryKey(srcChainId, network.l0ChainId, nonce);
+      const storageKey = entryKey(srcChainId, id);
       const entry = await redis.get(redisKey(storageKey));
       await redis.set(redisKey(`eventData-${storageKey}`), JSON.stringify(eventData));
       if (!entry) {
-        await redis.sadd(redisKey(`pending-in-${network.l0ChainId}`), storageKey);
-        console.error(`${storageKey} not found, queued`);
+        await redis.sadd(redisKey(`pending-in-${network.l0ChainId}`), redisKey(storageKey));
+        console.error(`incoming swap ${storageKey} not found, queued`);
         return;
       }
       const swapData: SwapEntry = JSON.parse(entry);
@@ -340,8 +373,10 @@ export const l0ProcessHistory = async (chainId: ChainID, fromBlock: number, pk: 
   }
 
   const flt = network.l0CrossChainPool.filters.CrossChainSwap();
-  flt.fromBlock = fromBlock;
+  flt.fromBlock = fromBlock - 1;
+  flt.toBlock = fromBlock + 1;
   const logs = await network.ethers.getLogs(flt);
+  console.log(logs);
   await Promise.all(
     logs.map((l) => {
       const lp = network.l0CrossChainPool.interface.parseLog(l);
